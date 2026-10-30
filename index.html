@@ -115,7 +115,6 @@ h1,h2,h3{font-family:var(--display);margin:0;line-height:1.2;letter-spacing:-.01
 .me .bubble{background:var(--bubble-user);color:var(--on-accent);border-bottom-right-radius:4px}
 .t{transition:filter .15s}
 .nosubs .ai .t{filter:blur(6px);cursor:pointer;-webkit-user-select:none;user-select:none}
-.nosubs .ai.reveal .t{filter:none;-webkit-user-select:text;user-select:text}
 @media (prefers-reduced-motion:reduce){.t{transition:none}}
 .tools{display:flex;gap:6px;margin-top:5px}
 .tools button{background:transparent;color:var(--muted);font-size:14px;padding:6px 12px;border-radius:10px;border:1px solid var(--line);touch-action:manipulation}
@@ -951,14 +950,14 @@ function setSubsBtn(){
   $("#subsBtn").setAttribute("aria-pressed", String(S.settings.subs));
   $("#subsBtn").textContent = S.settings.subs ? "字幕：開" : "字幕：關";
 }
-$("#subsBtn").onclick = () => {
+function toggleSubs(){
   S.settings.subs = !S.settings.subs; save();
   setSubsBtn();
   $("#msgs").classList.toggle("nosubs", !S.settings.subs);
-};
+}
+$("#subsBtn").onclick = toggleSubs;
 $("#msgs").addEventListener("click", e => {
-  const b = e.target.closest(".bubble");
-  if (b && $("#msgs").classList.contains("nosubs")) { const m = b.closest(".msg.ai"); if (m) m.classList.toggle("reveal"); }
+  if (e.target.closest(".bubble") && e.target.closest(".msg.ai")) toggleSubs();   // 點 AI 的話 = 按上方字幕按鈕
 });
 $("#hintBtn").onclick = getHint;
 $("#micBtn").onclick = toggleRec;
