@@ -581,7 +581,7 @@ function renderHome(){
   const n = streakOf();
   $("#streak").innerHTML = n > 0 ? `<b>連續 ${n} 天</b><span class="muted">今天也來練一段</span>` : `<span class="muted">今天還沒練習</span>`;
   $("#setupBox").innerHTML = S.apiKey ? "" :
-    `<div class="setup"><p><b>先完成一個設定</b>：貼上免費的 Groq API Key，就能開始對話。</p><button class="btn" id="setupGo">去設定</button></div>`;
+    `<div class="setup"><p><b>先完成一個設定</b>：貼上API Key。</p><button class="btn" id="setupGo">去設定</button></div>`;
   const drawn = isDrawnToday();
   $("#drawPanel").hidden = drawn;
   $("#deck").className = "deck";
