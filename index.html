@@ -267,7 +267,7 @@ details.tr summary{cursor:pointer;color:var(--muted)}
           <option value="0.8">慢</option><option value="0.95">正常</option><option value="1.1">快</option>
         </select>
       </div>
-      <div class="check"><input type="checkbox" id="optSubs"><label for="optSubs">顯示 AI 的英文字幕</label></div>
+      <div class="check"><input type="checkbox" id="optSubs"><label for="optSubs">每次對話一開始就顯示英文字幕（預設關閉）</label></div>
       <div class="check"><input type="checkbox" id="optAuto"><label for="optAuto">語音辨識完直接送出（不先確認文字）</label></div>
       <details style="margin-bottom:16px">
         <summary class="muted">進階：模型名稱</summary>
@@ -415,7 +415,7 @@ const byId = id => SCENARIOS.find(s => s.id === id);
 const DEFAULTS = () => ({
   apiKey: "", level: "B1", drawnDate: "", lastV: {},
   history: [],
-  settings: { autoSend:false, subs:false, subsV:2, rate:0.95,
+  settings: { autoSend:false, subs:false, subsV:3, rate:0.95,
     llm:"llama-3.3-70b-versatile", llmFallback:"llama-3.1-8b-instant", stt:"whisper-large-v3-turbo" }
 });
 let S = load();
@@ -425,7 +425,7 @@ function load(){
     const raw = JSON.parse(localStorage.getItem(KEY));
     if (raw && typeof raw === "object") {
       const rawSettings = { ...(raw.settings || {}) };
-      if (rawSettings.subsV !== 2) { rawSettings.subs = false; rawSettings.subsV = 2; }
+      if (rawSettings.subsV !== 3) { rawSettings.subs = false; rawSettings.subsV = 3; }
       raw.settings = rawSettings;
       let level = raw.level;
       if (!level && Array.isArray(raw.profiles)) {   // 從舊版（雙使用者）轉換
@@ -619,12 +619,12 @@ function startScenario(id){
   const scn = byId(id); if (!scn) return;
   if (!S.apiKey) { toast("請先到設定貼上 Groq API Key"); show("set"); fillSettings(); return; }
   unlockTTS();
-  C = { scn, msgs:[], userTurns:0, ended:false, busy:false, tr:{}, variant:makeVariant(scn) };
+  C = { scn, msgs:[], userTurns:0, ended:false, busy:false, tr:{}, variant:makeVariant(scn), subs: !!S.settings.subs };
   $("#chatRole").textContent = scn.role + (C.variant.name ? "・" + C.variant.name : "");
   $("#chatPlace").textContent = scn.place;
   $("#mission").innerHTML = `<b>你的任務：</b>${esc(scn.goal)}`;
   $("#msgs").innerHTML = "";
-  $("#msgs").classList.toggle("nosubs", !S.settings.subs);
+  $("#msgs").classList.toggle("nosubs", !C.subs);
   setSubsBtn();
   $("#hintBox").hidden = true;
   $("#endBar").hidden = true; $("#inputArea").hidden = false;
@@ -947,13 +947,15 @@ $("#chatBack").onclick = () => {
   stopSpeaking(); stopRec(true); C = null; renderHome();
 };
 function setSubsBtn(){
-  $("#subsBtn").setAttribute("aria-pressed", String(S.settings.subs));
-  $("#subsBtn").textContent = S.settings.subs ? "字幕：開" : "字幕：關";
+  const on = !!(C && C.subs);
+  $("#subsBtn").setAttribute("aria-pressed", String(on));
+  $("#subsBtn").textContent = on ? "字幕：開" : "字幕：關";
 }
-function toggleSubs(){
-  S.settings.subs = !S.settings.subs; save();
+function toggleSubs(){      // 只影響目前這場對話；下一場一律回到預設
+  if (!C) return;
+  C.subs = !C.subs;
   setSubsBtn();
-  $("#msgs").classList.toggle("nosubs", !S.settings.subs);
+  $("#msgs").classList.toggle("nosubs", !C.subs);
 }
 $("#subsBtn").onclick = toggleSubs;
 $("#msgs").addEventListener("click", e => {
