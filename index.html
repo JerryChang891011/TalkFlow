@@ -113,11 +113,10 @@ h1,h2,h3{font-family:var(--display);margin:0;line-height:1.2;letter-spacing:-.01
 .bubble{padding:10px 14px;border-radius:16px;line-height:1.5;font-size:16.5px;word-break:break-word}
 .ai .bubble{background:var(--paper);border:1px solid var(--line);border-bottom-left-radius:4px}
 .me .bubble{background:var(--bubble-user);color:var(--on-accent);border-bottom-right-radius:4px}
-.ph{display:none;color:var(--muted);font-size:14.5px;cursor:pointer}
-.nosubs .ai .t{display:none}
-.nosubs .ai .ph{display:inline}
-.nosubs .ai.reveal .t{display:inline}
-.nosubs .ai.reveal .ph{display:none}
+.t{transition:filter .15s}
+.nosubs .ai .t{filter:blur(6px);cursor:pointer;-webkit-user-select:none;user-select:none}
+.nosubs .ai.reveal .t{filter:none;-webkit-user-select:text;user-select:text}
+@media (prefers-reduced-motion:reduce){.t{transition:none}}
 .tools{display:flex;gap:6px;margin-top:5px}
 .tools button{background:transparent;color:var(--muted);font-size:14px;padding:6px 12px;border-radius:10px;border:1px solid var(--line);touch-action:manipulation}
 .trl{font-size:14px;color:var(--muted);margin-top:4px;padding-left:4px}
@@ -417,7 +416,7 @@ const byId = id => SCENARIOS.find(s => s.id === id);
 const DEFAULTS = () => ({
   apiKey: "", level: "B1", drawnDate: "", lastV: {},
   history: [],
-  settings: { autoSend:false, subs:true, rate:0.95,
+  settings: { autoSend:false, subs:false, subsV:2, rate:0.95,
     llm:"llama-3.3-70b-versatile", llmFallback:"llama-3.1-8b-instant", stt:"whisper-large-v3-turbo" }
 });
 let S = load();
@@ -426,6 +425,9 @@ function load(){
   try {
     const raw = JSON.parse(localStorage.getItem(KEY));
     if (raw && typeof raw === "object") {
+      const rawSettings = { ...(raw.settings || {}) };
+      if (rawSettings.subsV !== 2) { rawSettings.subs = false; rawSettings.subsV = 2; }
+      raw.settings = rawSettings;
       let level = raw.level;
       if (!level && Array.isArray(raw.profiles)) {   // 從舊版（雙使用者）轉換
         const old = raw.profiles.find(p => p.id === raw.active) || raw.profiles[0];
@@ -636,7 +638,7 @@ function addMsg(who, text){
   el.className = "msg " + who;
   const idx = C.msgs.length - 1;
   el.dataset.i = idx;
-  el.innerHTML = `<div class="bubble"><span class="t">${esc(text)}</span><span class="ph">🔒 字幕已隱藏，點一下顯示</span></div>` +
+  el.innerHTML = `<div class="bubble"><span class="t">${esc(text)}</span></div>` +
     (who === "ai" ? `<div class="tools"><button data-a="play">▶ 重播</button><button data-a="slow">慢速</button><button data-a="tr">翻譯</button></div><div class="trl" hidden></div>` : "");
   $("#msgs").appendChild(el);
   $("#msgs").scrollTop = $("#msgs").scrollHeight;
