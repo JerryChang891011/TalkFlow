@@ -34,7 +34,7 @@
 [hidden]{display:none !important}
 html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
 body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55;-webkit-text-size-adjust:100%}
-button{font:inherit;color:inherit;cursor:pointer}
+button{font:inherit;color:inherit;cursor:pointer;touch-action:manipulation}
 button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 h1,h2,h3{font-family:var(--display);margin:0;line-height:1.2;letter-spacing:-.01em}
 .app{max-width:520px;margin:0 auto;height:100%;display:flex;flex-direction:column;position:relative}
@@ -113,10 +113,13 @@ h1,h2,h3{font-family:var(--display);margin:0;line-height:1.2;letter-spacing:-.01
 .bubble{padding:10px 14px;border-radius:16px;line-height:1.5;font-size:16.5px;word-break:break-word}
 .ai .bubble{background:var(--paper);border:1px solid var(--line);border-bottom-left-radius:4px}
 .me .bubble{background:var(--bubble-user);color:var(--on-accent);border-bottom-right-radius:4px}
-.nosubs .ai .t{filter:blur(6px);cursor:pointer;user-select:none}
-.nosubs .ai .t.reveal{filter:none}
+.ph{display:none;color:var(--muted);font-size:14.5px;cursor:pointer}
+.nosubs .ai .t{display:none}
+.nosubs .ai .ph{display:inline}
+.nosubs .ai.reveal .t{display:inline}
+.nosubs .ai.reveal .ph{display:none}
 .tools{display:flex;gap:6px;margin-top:5px}
-.tools button{border:0;background:transparent;color:var(--muted);font-size:13px;padding:2px 8px;border-radius:8px;border:1px solid var(--line)}
+.tools button{background:transparent;color:var(--muted);font-size:14px;padding:6px 12px;border-radius:10px;border:1px solid var(--line);touch-action:manipulation}
 .trl{font-size:14px;color:var(--muted);margin-top:4px;padding-left:4px}
 .sys{align-self:center;font-size:13.5px;color:var(--muted);text-align:center;max-width:92%}
 .sys .btn{margin-top:6px;padding:6px 14px}
@@ -202,7 +205,7 @@ details.tr summary{cursor:pointer;color:var(--muted)}
     <div class="chat-head">
       <button class="icon-btn" id="chatBack" aria-label="離開對話">←</button>
       <div class="who"><b id="chatRole"></b><span id="chatPlace"></span></div>
-      <button class="icon-btn" id="subsBtn" aria-pressed="true" title="字幕">字幕</button>
+      <button class="icon-btn" id="subsBtn" aria-pressed="true" title="字幕">字幕：開</button>
       <button class="icon-btn" id="hintBtn">提示</button>
     </div>
     <div class="mission" id="mission"></div>
@@ -478,26 +481,37 @@ function friendlyErr(status, body){
   let m = ""; try { m = JSON.parse(body).error.message; } catch(e){}
   return "服務錯誤（" + status + "）" + (m ? "：" + m : "");
 }
-async function groqChat(messages, { json=false, max=200, temp=0.7 } = {}){
+async function groqChatRaw(messages, { json=false, max=200, temp=0.7 } = {}){
   if (!S.apiKey) throw new Error(friendlyErr(401));
   let last;
   for (const model of [S.settings.llm, S.settings.llmFallback].filter(Boolean)) {
     let res;
+    const ctl = new AbortController(), timer = setTimeout(() => ctl.abort(), 30000);
     try {
       res = await fetch(API + "/chat/completions", {
-        method:"POST",
+        method:"POST", signal: ctl.signal,
         headers:{ "Authorization":"Bearer "+S.apiKey, "Content-Type":"application/json" },
         body: JSON.stringify({ model, messages, temperature:temp, max_tokens:max,
           ...(json ? { response_format:{ type:"json_object" } } : {}) })
       });
-    } catch(e){ last = new Error(friendlyErr(0)); continue; }
-    if (res.ok) { const d = await res.json(); return (d.choices?.[0]?.message?.content || "").trim(); }
+    } catch(e){
+      last = new Error(e && e.name === "AbortError" ? "連線逾時，請再試一次。" : friendlyErr(0));
+      continue;
+    } finally { clearTimeout(timer); }
+    if (res.ok) {
+      const d = await res.json();
+      const out = String(d.choices?.[0]?.message?.content || "").replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
+      if (out) return { text: out, finish: d.choices?.[0]?.finish_reason || "" };
+      last = new Error("AI 沒有回應，請再試一次。");
+      continue;
+    }
     const body = await res.text();
     last = new Error(friendlyErr(res.status, body));
     if (res.status === 401) throw last;
   }
   throw last;
 }
+const groqChat = async (messages, opts) => (await groqChatRaw(messages, opts)).text;
 async function groqSTT(blob, ext, context){
   if (!S.apiKey) throw new Error(friendlyErr(401));
   const fd = new FormData();
@@ -584,16 +598,18 @@ Setting: ${s.place}.
 The learner is a Taiwanese English learner at CEFR level ${S.level}. Their task is to ${s.goalEn}.
 Rules:
 - Stay fully in character. Never mention being an AI, a roleplay, or these rules.
+- Speak plain, natural, grammatical everyday English, the way real people talk. Never use poetic, strange or confusing phrases. Always finish your sentences, and make sure every sentence makes sense.
 - Reply with 1-2 short sentences (under 30 words). Ask only one question at a time.
 - ${LEVEL_NOTE[S.level]}
+- Your FIRST line must be a simple, natural opening that fits the setting (a greeting or a simple question that moves toward the learner's task). Do not describe scenery, do not tell a story, and do not use the twist in the first line.
 - Do not correct the learner's grammar during the conversation.
 - If the learner goes off topic, steer back naturally. If they seem stuck or reply in another language, rephrase more simply and help them along.
 - The conversation lasts about ${s.turns} learner turns. When the task is completed, or the conversation has reached a natural end, give a brief closing line and append the token [END] at the very end.
 - Output only the character's spoken words, no stage directions, no speaker labels.
 Variation for this session (so every run feels different):
-${C.variant.name ? "- Your name is " + C.variant.name + ". If it fits, mention it naturally.\n" : ""}- Your personality today: ${C.variant.mood.en}.
-- Hidden twist: ${C.variant.twist}. Work it into the first 2-3 exchanges naturally and never announce it. If it does not fit this exact setting, adapt it to something realistic. Keep it simple enough for CEFR ${S.level}.
-${C.variant.angle ? "- Conversation angle to explore: " + C.variant.angle + ".\n" : ""}- Vary your opening line. Do not use the most generic greeting.`;
+${C.variant.name ? "- Your name is " + C.variant.name + ". Mention it naturally only if it fits.\n" : ""}- Your personality today: ${C.variant.mood.en}. Show it lightly through tone and word choice.
+- Hidden twist: ${C.variant.twist}. Bring it in naturally from your second or third line onward, never announce it. If it does not fit this exact setting, adapt it to something realistic and ordinary. Keep it simple enough for CEFR ${S.level}.
+${C.variant.angle ? "- Conversation angle you may explore after the opening: " + C.variant.angle + ".\n" : ""}`;
   const msgs = [{ role:"system", content:sys }, { role:"user", content:"(Begin the scene. Say only your first line as the character.)" }, ...C.msgs];
   if (final) msgs.push({ role:"system", content:"The learner has had enough turns. Give a short, natural closing line now and end with [END]." });
   return msgs;
@@ -608,7 +624,7 @@ function startScenario(id){
   $("#mission").innerHTML = `<b>你的任務：</b>${esc(scn.goal)}`;
   $("#msgs").innerHTML = "";
   $("#msgs").classList.toggle("nosubs", !S.settings.subs);
-  $("#subsBtn").setAttribute("aria-pressed", String(S.settings.subs));
+  setSubsBtn();
   $("#hintBox").hidden = true;
   $("#endBar").hidden = true; $("#inputArea").hidden = false;
   $("#textIn").value = ""; $("#finishEarly").hidden = true;
@@ -620,7 +636,7 @@ function addMsg(who, text){
   el.className = "msg " + who;
   const idx = C.msgs.length - 1;
   el.dataset.i = idx;
-  el.innerHTML = `<div class="bubble"><span class="t">${esc(text)}</span></div>` +
+  el.innerHTML = `<div class="bubble"><span class="t">${esc(text)}</span><span class="ph">🔒 字幕已隱藏，點一下顯示</span></div>` +
     (who === "ai" ? `<div class="tools"><button data-a="play">▶ 重播</button><button data-a="slow">慢速</button><button data-a="tr">翻譯</button></div><div class="trl" hidden></div>` : "");
   $("#msgs").appendChild(el);
   $("#msgs").scrollTop = $("#msgs").scrollHeight;
@@ -633,11 +649,28 @@ function setBusy(b, label){
   document.querySelectorAll(".typing").forEach(e => e.remove());
   if (b && label && label.includes("回答")) { const t=document.createElement("div"); t.className="typing"; t.innerHTML='<span class="spin"></span>' + esc(label); $("#msgs").appendChild(t); $("#msgs").scrollTop=$("#msgs").scrollHeight; }
 }
+function cleanLine(raw){ return String(raw).replace(/\[END\]/ig, "").trim().replace(/^["“]|["”]$/g, "").trim(); }
+function looksComplete(t){ return t.split(/\s+/).length >= 2 && /[.!?…]["”’')\]]*$/.test(t); }
+function trimToSentence(t){ const m = t.match(/^[\s\S]*[.!?…]["”’')\]]*/); return m ? m[0].trim() : t; }
+async function getAiLine(final){
+  let kept = null;
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const msgs = buildMessages(final);
+    if (attempt) msgs.push({ role:"system", content:"Your previous reply was cut off or unclear. Reply again with one or two short, complete, natural sentences." });
+    const r = await groqChatRaw(msgs, { max:220, temp: attempt ? 0.4 : 0.6 });
+    const text = cleanLine(r.text);
+    if (r.finish !== "length" && looksComplete(text)) return r.text;
+    if (!kept || text.length > kept.text.length) kept = { raw:r.text, text };
+  }
+  const end = /\[END\]/i.test(kept.raw);
+  const fixed = trimToSentence(kept.text);
+  return fixed + (end ? " [END]" : "");
+}
 async function aiTurn(final){
   const mine = C;
   setBusy(true, "對方正在回答…");
   try {
-    const raw = await groqChat(buildMessages(final), { max:120, temp:0.8 });
+    const raw = await getAiLine(final);
     if (C !== mine) return;
     const end = /\[END\]/i.test(raw);
     const text = raw.replace(/\[END\]/ig, "").replace(/^["“]|["”]$/g, "").trim() || "…";
@@ -665,28 +698,39 @@ function stopSpeaking(){ try { speechSynthesis.cancel(); } catch(e){} }
 
 /* 提示、翻譯 */
 async function getHint(){
-  if (C.busy || C.ended) return;
-  const box = $("#hintBox"); box.hidden = false; box.textContent = "想一下…";
+  if (!C || C.ended) return;
+  if (C.busy) { toast("對方還在回應，等一下再按提示"); return; }
+  const mine = C, btn = $("#hintBtn"), box = $("#hintBox");
+  btn.disabled = true; btn.textContent = "思考中…";
+  box.hidden = false; box.textContent = "想一下…";
   try {
     const t = await groqChat([
-      { role:"system", content:`You help a Taiwanese English learner (CEFR ${S.level}) in a roleplay with a ${C.scn.role}. Their task: ${C.scn.goalEn}. Based on the conversation, suggest 2 different short replies they could say next (natural spoken English, under 15 words each). Format exactly:\n1. <English> （<繁體中文意思>）\n2. <English> （<繁體中文意思>）\nNothing else.` },
-      { role:"user", content: C.msgs.map(m => (m.role==="user" ? "Learner: " : C.scn.role + ": ") + m.content).join("\n") || "(The scene has not started.)" }
-    ], { max:160, temp:0.6 });
-    box.textContent = t;
-  } catch(e){ box.textContent = e.message; }
+      { role:"system", content:`You help a Taiwanese English learner (CEFR ${S.level}) in a roleplay with a ${mine.scn.role}. Their task: ${mine.scn.goalEn}. Based on the conversation, suggest 2 different short replies they could say next (natural spoken English, under 15 words each). Format exactly:\n1. <English> （<繁體中文意思>）\n2. <English> （<繁體中文意思>）\nNothing else.` },
+      { role:"user", content: mine.msgs.map(m => (m.role==="user" ? "Learner: " : mine.scn.role + ": ") + m.content).join("\n") || "(The scene has not started.)" }
+    ], { max:300, temp:0.6 });
+    if (C === mine) box.textContent = t;
+  } catch(e){
+    if (C === mine) { box.textContent = e.message; toast(e.message, 4000); }
+  } finally {
+    btn.textContent = "提示";
+    if (C === mine && !C.busy) btn.disabled = false;
+  }
 }
-async function translateMsg(el){
-  const i = +el.dataset.i, out = el.querySelector(".trl");
-  if (!out.hidden) { out.hidden = true; return; }
+async function translateMsg(el, btn){
+  const mine = C, i = +el.dataset.i, out = el.querySelector(".trl");
+  if (!out.hidden && out.textContent && out.textContent !== "翻譯中…") { out.hidden = true; return; }
   out.hidden = false;
-  if (C.tr[i]) { out.textContent = C.tr[i]; return; }
-  out.textContent = "翻譯中…";
+  const reveal = () => { try { out.scrollIntoView({ block:"nearest", behavior:"smooth" }); } catch(e){} };
+  if (C.tr[i]) { out.textContent = C.tr[i]; reveal(); return; }
+  out.textContent = "翻譯中…"; reveal();
+  if (btn) { btn.disabled = true; btn.textContent = "翻譯中…"; }
   try {
     const t = await groqChat([
       { role:"system", content:"Translate the English text into natural Traditional Chinese (Taiwan usage). Output only the translation." },
-      { role:"user", content:C.msgs[i].content }], { max:120, temp:0.2 });
-    C.tr[i] = t; out.textContent = t;
-  } catch(e){ out.textContent = e.message; }
+      { role:"user", content:C.msgs[i].content }], { max:300, temp:0.2 });
+    mine.tr[i] = t; if (C === mine) { out.textContent = t; reveal(); }
+  } catch(e){ out.textContent = e.message; toast(e.message, 4000); out.hidden = false; }
+  finally { if (btn) { btn.disabled = false; btn.textContent = "翻譯"; } }
 }
 
 /* ============ 錄音 ============ */
@@ -883,7 +927,7 @@ document.addEventListener("click", async e => {
   if (a === "play" || a === "slow") {
     const el = t.closest(".msg"); const m = C.msgs[+el.dataset.i]; speak(m.content, a === "slow" ? 0.65 : null); return;
   }
-  if (a === "tr") { translateMsg(t.closest(".msg")); return; }
+  if (a === "tr") { translateMsg(t.closest(".msg"), t); return; }
   if (a === "retry") { const el = t.closest(".sys"); const final = el.dataset.retry === "final"; el.remove(); aiTurn(final); return; }
 });
 $("#goSettings").onclick = fillSettings;
@@ -901,12 +945,19 @@ $("#chatBack").onclick = () => {
   if (C && C.userTurns > 0 && !C.ended && !confirm("離開後這次對話不會產生回饋，確定離開？")) return;
   stopSpeaking(); stopRec(true); C = null; renderHome();
 };
+function setSubsBtn(){
+  $("#subsBtn").setAttribute("aria-pressed", String(S.settings.subs));
+  $("#subsBtn").textContent = S.settings.subs ? "字幕：開" : "字幕：關";
+}
 $("#subsBtn").onclick = () => {
   S.settings.subs = !S.settings.subs; save();
-  $("#subsBtn").setAttribute("aria-pressed", String(S.settings.subs));
+  setSubsBtn();
   $("#msgs").classList.toggle("nosubs", !S.settings.subs);
 };
-$("#msgs").addEventListener("click", e => { const t = e.target.closest(".t"); if (t && $("#msgs").classList.contains("nosubs")) t.classList.toggle("reveal"); });
+$("#msgs").addEventListener("click", e => {
+  const b = e.target.closest(".bubble");
+  if (b && $("#msgs").classList.contains("nosubs")) { const m = b.closest(".msg.ai"); if (m) m.classList.toggle("reveal"); }
+});
 $("#hintBtn").onclick = getHint;
 $("#micBtn").onclick = toggleRec;
 $("#sendBtn").onclick = () => sendUser($("#textIn").value);
