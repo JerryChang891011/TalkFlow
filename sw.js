@@ -1,6 +1,6 @@
 /* TalkFlow service worker：優先抓最新版本，沒網路時才用快取；只處理同網站的檔案，不碰 Groq 的請求 */
 const CACHE = "talkflow-v1";
-const SHELL = ["./", "index.html", "manifest.webmanifest", "icon.svg", "icon-192.png", "icon-512.png"];
+const SHELL = ["./", "index.html", "manifest.webmanifest", "icon.svg", "icon-192.png", "icon-512.png", "card-back.png"];
 
 self.addEventListener("install", e => {
   self.skipWaiting();
