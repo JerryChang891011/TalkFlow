@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#3D4BFF">
+<title>Talk Today｜每日情境英文對話</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🎟️%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#E9EEF6; --paper:#FBFCFF; --ink:#14213D; --muted:#5B6784;
+  --accent:#3D4BFF; --on-accent:#FFFFFF; --sun:#FFC83D; --on-sun:#14213D;
+  --ok:#168F62; --bad:#C7423F; --line:#C5CFE2; --bubble-user:#3D4BFF;
+  --display:"Bricolage Grotesque","Noto Sans TC",system-ui,sans-serif;
+  --body:"Noto Sans TC",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:light dark;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#0E1526; --paper:#182239; --ink:#EAF0FF; --muted:#9BA8C9;
+    --accent:#7F8BFF; --on-accent:#0E1526; --line:#2B3857; --bubble-user:#5A68F5;
+    --ok:#4CC38F; --bad:#F0807C;
+  }
+}
+*,*::before,*::after{box-sizing:inherit}
+[hidden]{display:none !important}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55;-webkit-text-size-adjust:100%}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+h1,h2,h3{font-family:var(--display);margin:0;line-height:1.2;letter-spacing:-.01em}
+.app{max-width:520px;margin:0 auto;height:100%;display:flex;flex-direction:column;position:relative}
+.view{flex:1;min-height:0;display:flex;flex-direction:column}
+.view[hidden]{display:none}
+.scroll{flex:1;min-height:0;overflow-y:auto;padding:20px 18px 28px;-webkit-overflow-scrolling:touch}
+.btn{border:0;border-radius:12px;padding:12px 18px;background:var(--accent);color:var(--on-accent);font-weight:700}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+.btn.sun{background:var(--sun);color:var(--on-sun)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.link{background:none;border:0;padding:6px 4px;color:var(--muted);text-decoration:underline;text-underline-offset:3px}
+.muted{color:var(--muted)}
+.row-between{display:flex;align-items:center;justify-content:space-between;gap:10px}
+
+/* Home */
+.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.brand{font-family:var(--display);font-weight:700;font-size:20px}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{border:1.5px solid var(--line);background:transparent;border-radius:999px;padding:5px 14px;font-weight:500}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.levelbar{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:24px}
+.levelbar .chip{border-radius:12px;padding:8px 6px;display:flex;flex-direction:column;align-items:center;line-height:1.25}
+.levelbar .chip b{font-family:var(--display);font-size:17px}
+.levelbar .chip small{font-size:12px;opacity:.8}
+.hello{font-size:30px;font-weight:700;margin:22px 0 6px;max-width:12em}
+.streak{display:inline-flex;align-items:center;gap:8px;margin-bottom:22px}
+.streak b{background:var(--sun);color:var(--on-sun);border-radius:8px;padding:1px 9px}
+.setup{background:var(--paper);border:1.5px dashed var(--accent);border-radius:14px;padding:16px;margin-bottom:20px}
+.setup p{margin:0 0 10px}
+.tickets{display:grid;gap:16px}
+.ticket{display:grid;grid-template-columns:78px 1fr;background:var(--paper);border:1px solid var(--line);border-radius:14px;position:relative;text-align:left;width:100%;padding:0;overflow:visible}
+.ticket::before,.ticket::after{content:"";position:absolute;left:69px;width:18px;height:18px;border-radius:50%;background:var(--bg)}
+.ticket::before{top:-10px}.ticket::after{bottom:-10px}
+.ticket .stub{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;border-right:2px dashed var(--line);padding:14px 4px;font-size:30px;line-height:1}
+.dots{display:flex;gap:3px}.dots i{width:7px;height:7px;border-radius:50%;background:var(--line)}.dots i.on{background:var(--accent)}
+.ticket .main{padding:14px 16px 14px 16px}
+.ticket h3{font-size:20px}
+.ticket .place{font-size:13px;color:var(--muted);margin:2px 0 8px}
+.ticket .goal{font-size:14.5px}
+.ticket .tag{display:inline-block;font-size:12px;border:1px solid var(--line);border-radius:6px;padding:0 7px;margin-top:8px;color:var(--muted)}
+.ticket:hover{border-color:var(--accent)}
+.ticket.done .main{opacity:.6}
+.stamp{position:absolute;right:12px;top:10px;transform:rotate(-8deg);border:2px solid var(--ok);color:var(--ok);font-weight:700;font-size:13px;padding:0 8px;border-radius:6px;font-family:var(--display)}
+.foot{display:flex;justify-content:center;gap:18px;margin-top:26px}
+
+/* Chat */
+.chat-head{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line)}
+.chat-head .who{flex:1;min-width:0}
+.chat-head .who b{font-family:var(--display);font-size:18px;display:block;line-height:1.2}
+.chat-head .who span{font-size:12.5px;color:var(--muted)}
+.icon-btn{border:1.5px solid var(--line);background:transparent;border-radius:10px;padding:6px 10px;font-size:14px}
+.icon-btn[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.mission{margin:10px 14px 0;padding:8px 12px;border-radius:10px;background:var(--paper);border:1px dashed var(--line);font-size:14px}
+.mission b{color:var(--accent)}
+#msgs{flex:1;min-height:0;overflow-y:auto;padding:16px 14px;display:flex;flex-direction:column;gap:14px}
+.msg{display:flex;flex-direction:column;max-width:86%}
+.msg.ai{align-self:flex-start}.msg.me{align-self:flex-end;align-items:flex-end}
+.bubble{padding:10px 14px;border-radius:16px;line-height:1.5;font-size:16.5px;word-break:break-word}
+.ai .bubble{background:var(--paper);border:1px solid var(--line);border-bottom-left-radius:4px}
+.me .bubble{background:var(--bubble-user);color:var(--on-accent);border-bottom-right-radius:4px}
+.nosubs .ai .t{filter:blur(6px);cursor:pointer;user-select:none}
+.nosubs .ai .t.reveal{filter:none}
+.tools{display:flex;gap:6px;margin-top:5px}
+.tools button{border:0;background:transparent;color:var(--muted);font-size:13px;padding:2px 8px;border-radius:8px;border:1px solid var(--line)}
+.trl{font-size:14px;color:var(--muted);margin-top:4px;padding-left:4px}
+.sys{align-self:center;font-size:13.5px;color:var(--muted);text-align:center;max-width:92%}
+.sys .btn{margin-top:6px;padding:6px 14px}
+.typing{align-self:flex-start;color:var(--muted);font-size:14px;padding-left:6px}
+.hint{margin:0 14px 8px;padding:10px 12px;border-radius:12px;background:var(--sun);color:var(--on-sun);font-size:14.5px;white-space:pre-wrap}
+.composer{padding:10px 14px 14px;border-top:1px solid var(--line);background:var(--bg)}
+.inline{display:flex;gap:8px;margin-bottom:12px}
+.inline input{flex:1;min-width:0;border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--paper);color:var(--ink);font:inherit;font-size:16px}
+.micwrap{display:flex;flex-direction:column;align-items:center;gap:6px}
+.mic{width:76px;height:76px;border-radius:50%;border:0;background:var(--accent);color:var(--on-accent);display:grid;place-items:center;box-shadow:0 0 0 6px color-mix(in srgb,var(--accent) 22%,transparent)}
+.mic svg{width:32px;height:32px}
+.mic.rec{background:var(--bad);animation:pulse 1.2s ease-in-out infinite}
+.mic:disabled{opacity:.4}
+@keyframes pulse{50%{box-shadow:0 0 0 14px color-mix(in srgb,var(--bad) 18%,transparent)}}
+@media (prefers-reduced-motion:reduce){.mic.rec{animation:none}}
+.mic-label{font-size:13.5px;color:var(--muted)}
+.endbar{display:flex;gap:10px;justify-content:center}
+
+/* Feedback */
+.fb-head{display:flex;gap:14px;align-items:center;margin:6px 0 18px}
+.badge{flex:none;width:92px;height:92px;border-radius:50%;border:3px solid var(--accent);display:grid;place-items:center;text-align:center;font-family:var(--display);transform:rotate(-6deg)}
+.badge.ok{border-color:var(--ok);color:var(--ok)}
+.badge b{font-size:30px;line-height:1}.badge small{display:block;font-size:12px;font-weight:500}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:14px}
+.card h3{font-size:17px;margin-bottom:8px}
+.card ul{margin:0;padding-left:20px}
+.fix{padding:10px 0;border-top:1px solid var(--line)}.fix:first-of-type{border-top:0;padding-top:0}
+.fix .o{color:var(--bad);text-decoration:line-through;text-decoration-thickness:1px}
+.fix .b{color:var(--ok);font-weight:500}
+.fix .r{font-size:14px;color:var(--muted)}
+.tip{background:var(--sun);color:var(--on-sun);border-radius:14px;padding:12px 16px;margin-bottom:14px}
+details.tr summary{cursor:pointer;color:var(--muted)}
+.tr p{margin:8px 0 0;font-size:15px}.tr p b{font-family:var(--display)}
+
+/* Settings / history */
+.field{display:grid;gap:6px;margin-bottom:14px}
+.field label{font-weight:500}
+.field input,.field select{border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--paper);color:var(--ink);font:inherit;font-size:16px;width:100%}
+.two{display:grid;grid-template-columns:1fr 110px;gap:8px}
+.check{display:flex;gap:10px;align-items:center;margin-bottom:12px}
+.check input{width:20px;height:20px;accent-color:var(--accent)}
+.hist{display:grid;gap:10px}
+.hist button{display:flex;justify-content:space-between;align-items:center;text-align:left;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:12px 14px;width:100%}
+.hist .s{font-family:var(--display);font-weight:700;font-size:20px}
+.page-head{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.page-head h2{font-size:24px}
+.toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 110px);transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:14.5px;max-width:88%;z-index:9;text-align:center}
+.toast[hidden]{display:none}
+.spin{display:inline-block;width:16px;height:16px;border:2.5px solid var(--line);border-top-color:var(--accent);border-radius:50%;animation:sp .8s linear infinite;vertical-align:-3px;margin-right:8px}
+@keyframes sp{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.spin{animation-duration:2s}}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- HOME -->
+  <section class="view" id="v-home">
+    <div class="scroll">
+      <div class="top">
+        <span class="brand">Talk Today</span>
+      </div>
+      <h1 class="hello">今天想跟誰聊聊？</h1>
+      <div class="streak" id="streak"></div>
+      <div class="levelbar" id="levelBar" role="group" aria-label="選擇難度"></div>
+      <div id="setupBox"></div>
+      <div class="tickets" id="tickets"></div>
+      <div class="foot">
+        <button class="link" id="goAll">全部情境</button>
+        <button class="link" id="goHistory">練習紀錄</button>
+        <button class="link" id="goSettings">設定</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- CHAT -->
+  <section class="view" id="v-chat" hidden>
+    <div class="chat-head">
+      <button class="icon-btn" id="chatBack" aria-label="離開對話">←</button>
+      <div class="who"><b id="chatRole"></b><span id="chatPlace"></span></div>
+      <button class="icon-btn" id="subsBtn" aria-pressed="true" title="字幕">字幕</button>
+      <button class="icon-btn" id="hintBtn">提示</button>
+    </div>
+    <div class="mission" id="mission"></div>
+    <div id="msgs"></div>
+    <div class="hint" id="hintBox" hidden></div>
+    <div class="composer">
+      <div id="endBar" class="endbar" hidden>
+        <button class="btn" id="seeFb">看回饋</button>
+        <button class="btn ghost" id="again2">再練一次</button>
+      </div>
+      <div id="inputArea">
+        <div class="inline">
+          <input id="textIn" type="text" placeholder="也可以直接打字回答" autocomplete="off" autocapitalize="sentences" enterkeyhint="send">
+          <button class="btn" id="sendBtn">送出</button>
+        </div>
+        <div class="micwrap">
+          <button class="mic" id="micBtn" aria-label="開始錄音">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4"/></svg>
+          </button>
+          <span class="mic-label" id="micLabel">點一下開始說</span>
+          <button class="link" id="finishEarly" hidden>結束對話，看回饋</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEEDBACK -->
+  <section class="view" id="v-fb" hidden>
+    <div class="scroll" id="fbBody"></div>
+  </section>
+
+  <!-- ALL SCENARIOS -->
+  <section class="view" id="v-all" hidden>
+    <div class="scroll">
+      <div class="page-head"><button class="icon-btn" data-home aria-label="返回">←</button><h2>全部情境</h2></div>
+      <div class="chips" id="tagChips" style="margin-bottom:16px"></div>
+      <div class="tickets" id="allTickets"></div>
+    </div>
+  </section>
+
+  <!-- HISTORY -->
+  <section class="view" id="v-hist" hidden>
+    <div class="scroll">
+      <div class="page-head"><button class="icon-btn" data-home aria-label="返回">←</button><h2>練習紀錄</h2></div>
+      <div class="hist" id="histList"></div>
+    </div>
+  </section>
+
+  <!-- SETTINGS -->
+  <section class="view" id="v-set" hidden>
+    <div class="scroll">
+      <div class="page-head"><button class="icon-btn" data-home aria-label="返回">←</button><h2>設定</h2></div>
+      <div class="field">
+        <label for="apiKey">Groq API Key（免費）</label>
+        <input id="apiKey" type="password" placeholder="gsk_..." autocomplete="off">
+        <span class="muted" style="font-size:14px">到 <a href="https://console.groq.com/keys" target="_blank" rel="noopener">console.groq.com/keys</a> 登入後建立。Key 只會存在這台裝置的瀏覽器裡，每支手機或電腦各填一次。</span>
+      </div>
+      <div class="field">
+        <label for="rate">AI 說話速度</label>
+        <select id="rate">
+          <option value="0.8">慢</option><option value="0.95">正常</option><option value="1.1">快</option>
+        </select>
+      </div>
+      <div class="check"><input type="checkbox" id="optSubs"><label for="optSubs">顯示 AI 的英文字幕</label></div>
+      <div class="check"><input type="checkbox" id="optAuto"><label for="optAuto">語音辨識完直接送出（不先確認文字）</label></div>
+      <details style="margin-bottom:16px">
+        <summary class="muted">進階：模型名稱</summary>
+        <div class="field" style="margin-top:10px"><label for="mLlm">對話模型</label><input id="mLlm"></div>
+        <div class="field"><label for="mFb">備用模型（主模型額度用完時使用）</label><input id="mFb"></div>
+        <div class="field"><label for="mStt">語音辨識模型</label><input id="mStt"></div>
+      </details>
+      <div style="display:flex;gap:10px">
+        <button class="btn" id="saveSet">儲存</button>
+        <button class="btn ghost" id="testKey">測試連線</button>
+      </div>
+      <p class="muted" style="font-size:13.5px;margin-top:22px">語音辨識會把錄音送到 Groq 轉成文字，錄音檔不會被這個網頁儲存。學習紀錄只存在你的瀏覽器。</p>
+    </div>
+  </section>
+
+  <div class="toast" id="toast" hidden></div>
+</div>
+
+<script>
+"use strict";
+/* ============ 設定與資料 ============ */
+const API = "https://api.groq.com/openai/v1";
+const KEY = "talktoday.v1";
+const LEVELS = { A2: "初級 A2", B1: "中級 B1", B2: "中高級 B2" };
+const LEVEL_HINT = { A2:"慢、簡單", B1:"自然、清楚", B2:"道地、有追問" };
+const LEVEL_NOTE = {
+  A2: "Use very simple, common words and short sentences. Speak slowly and clearly. No idioms or slang.",
+  B1: "Use everyday vocabulary and clear, natural sentences. Avoid rare idioms.",
+  B2: "Speak naturally, with occasional idioms and follow-up questions."
+};
+
+const sc = (id,emoji,role,title,tag,diff,place,goal,goalEn,persona,turns) =>
+  ({ id,emoji,role,title,tag,diff,place,goal,goalEn,persona,turns });
+const FR = "a close friend chatting casually and warmly. You share your own short opinions and ask follow-up questions, like a real friend. ";
+const SCENARIOS = [
+  /* ---- 簡單 ---- */
+  sc("cafe","☕","Barista","咖啡廳店員","日常",1,"街角咖啡廳櫃檯","點一杯無咖啡因的飲料，決定內用或外帶，並付款","order a decaf drink, say whether it is for here or to go, and pay","a friendly, slightly busy barista. You ask what they would like, size, milk, for here or to go, then tell the total price.",5),
+  sc("fastfood","🍔","Cashier","速食店點餐","日常",1,"速食店櫃檯","點一份套餐，選飲料和尺寸，並問可不可以不加某樣食材","order a combo meal, choose a drink and size, and ask to leave out one ingredient","a quick, cheerful fast-food cashier. You ask about the combo, drink, size, and whether it is for here or to go.",4),
+  sc("convenience","🏪","Convenience store clerk","便利商店結帳","日常",1,"國外便利商店","問某樣東西放在哪裡，結帳時回答要不要袋子和發票","ask where an item is, then answer the clerk's questions at checkout (bag, receipt)","a store clerk at a convenience store. You help find items, ring up purchases, and ask about a bag and a receipt.",4),
+  sc("supermarket","🛒","Supermarket staff","超市找商品","日常",1,"超市走道","請店員幫忙找商品，問價格和有沒有其他選擇","ask the staff where to find an item, ask about its price, and ask if there is another option","a helpful supermarket employee who knows where everything is and gives short directions to aisles.",4),
+  sc("housekeeping","🛎️","Hotel housekeeper","房務人員","旅遊",1,"飯店房門口","請對方多給一條毛巾，並說明晚一點再打掃房間","ask for an extra towel and ask the housekeeper to clean the room later","a polite hotel housekeeper who has just knocked on the guest's door to ask if now is a good time to clean.",4),
+  sc("taxi","🚕","Taxi driver","計程車司機","旅遊",1,"機場外的計程車","說出目的地、問大概要多久，並告訴司機在哪裡下車","tell the driver the destination, ask how long it will take, and say where to stop","a talkative but kind taxi driver. You ask where to, comment on traffic, and chat a little.",4),
+  sc("directions","🧭","Local passer-by","路人問路","旅遊",1,"陌生城市的街頭","問怎麼去地鐵站，並確認走法（可請對方再說一次）","ask how to get to the subway station and confirm the directions (ask them to repeat if needed)","a helpful local giving walking directions with simple landmarks (turn left, two blocks, next to the bank).",4),
+  sc("photo","📸","Friendly tourist","請人幫忙拍照","旅遊",1,"景點前","請路人幫你拍照，說明想要的構圖，並道謝","ask a stranger to take your photo, say how you want it framed, and thank them","a friendly tourist at a famous landmark who happily agrees to take a photo and asks if the learner wants a horizontal or vertical shot.",4),
+  /* ---- 朋友閒聊（依主題） ---- */
+  sc("f-music","🎧","Friend","朋友聊音樂","朋友閒聊",1,"咖啡廳，朋友在聽耳機","聊自己喜歡的歌手或音樂類型，並問朋友最近在聽什麼","talk about favorite music or artists and ask the friend what they have been listening to","Jamie, "+"a close friend who loves music. You are listening to a new album and ask what the learner listens to. "+"You share your own short opinions and ask follow-up questions, like a real friend.",5),
+  sc("f-sports","⚽","Friend","朋友聊運動","朋友閒聊",1,"運動後的休息時間","聊自己喜歡的運動或球隊，並邀請朋友一起去運動","talk about a favorite sport or team and invite the friend to play or watch together","Chris, a sporty friend who just finished a workout. "+FR+"You love sports and ask what sports the learner likes.",5),
+  sc("f-movies","🎬","Friend","朋友聊電影影集","朋友閒聊",1,"週五晚上的訊息聊天","推薦一部最近看過的電影或影集，並說明為什麼好看","recommend a recent movie or series and explain why it is good","Taylor, a friend who watches a lot of movies and series and is looking for something new to watch. "+FR,5),
+  sc("f-food","🍜","Friend","朋友聊美食","朋友閒聊",1,"午餐前的聊天","聊最喜歡的食物，並約朋友一起去吃","talk about favorite foods and make plans to eat together","Morgan, a hungry friend who loves trying new restaurants. "+FR+"You are deciding where to eat lunch.",5),
+  sc("f-pets","🐶","Friend","朋友聊寵物","朋友閒聊",1,"公園散步","聊自己的寵物（或想養的寵物），描述牠的個性","talk about a pet you have or want and describe its personality","Riley, a friend walking a dog in the park. "+FR+"You love animals and ask about the learner's pets.",4),
+  sc("f-games","🎮","Friend","朋友聊遊戲","朋友閒聊",1,"放學／下班後的語音聊天","聊最近在玩的遊戲，並邀請朋友一起玩","talk about a game you are playing and invite the friend to play together","Casey, a friend who plays video games and board games. "+FR,5),
+  sc("f-weekend","🍕","Friend","朋友聊週末","朋友閒聊",1,"週一早上的訊息聊天","聊週末做了什麼，並邀請朋友一起做某件事","talk about last weekend and invite the friend to do something together","Alex, a cheerful friend chatting on Monday morning. "+FR+"You ask about the learner's weekend first.",5),
+  sc("f-fitness","🏃","Friend","朋友聊健身","朋友閒聊",1,"健身房門口","聊自己的運動習慣，並問朋友怎麼開始","talk about your exercise habits and ask for the friend's advice on getting started","Jordan, a friend who is into fitness and enjoys encouraging others. "+FR,5),
+  /* ---- 中等 ---- */
+  sc("customs","🛂","Customs officer","海關人員","旅遊",2,"美國機場入境海關","說明來訪目的、停留多久、住在哪裡","explain the purpose of the visit, how long they will stay, and where they will stay","a polite but serious immigration officer at a US airport. You ask about purpose of visit, length of stay, accommodation, and whether they carry food or large amounts of cash.",5),
+  sc("checkin","🧳","Airline check-in agent","機場報到櫃檯","旅遊",2,"機場航空公司櫃檯","辦理報到、說明行李件數，並問登機門和時間","check in for a flight, say how many bags you have, and ask about the gate and boarding time","an airline check-in agent. You ask for the passport, number of bags, seat preference, and explain the boarding time and gate.",5),
+  sc("frontdesk","🏨","Hotel receptionist","飯店櫃檯","旅遊",2,"飯店大廳櫃檯","辦理入住，並問早餐時間和 Wi-Fi 密碼","check in, and ask about breakfast time and the Wi-Fi password","a professional hotel receptionist. You ask for the name on the reservation, confirm the nights, and answer basic hotel questions.",5),
+  sc("hotelcomplaint","❄️","Hotel receptionist","飯店客訴","旅遊",2,"飯店櫃檯（電話）","說明房間冷氣壞了，請對方處理或換房","explain that the air conditioner is broken and ask for a repair or a different room","a hotel receptionist on the phone. You apologize, ask the room number and what is wrong, and offer solutions.",5),
+  sc("trainticket","🚆","Ticket agent","買火車票","旅遊",2,"火車站售票櫃檯","買兩張單程票，問時間、月台和價格","buy two one-way tickets and ask about the time, platform and price","a ticket agent at a train station. You ask about destination, time, and ticket type, then give the price and platform.",5),
+  sc("restaurant","🍝","Waiter","餐廳服務生","日常",2,"晚餐時段的餐廳","點主餐和飲料、說明過敏或不吃的食物，最後請服務生結帳","order a main dish and a drink, mention a food allergy, and ask for the bill","a friendly waiter. You take the order, suggest a special, ask about allergies, and bring the bill when asked.",6),
+  sc("pharmacy","💊","Pharmacist","藥局藥師","日常",2,"國外的藥局","描述頭痛和喉嚨痛，並問藥該怎麼吃","describe a headache and a sore throat, and ask how to take the medicine","a caring pharmacist. You ask about symptoms, how long, allergies, and explain simple dosing in plain English. You never diagnose serious conditions.",5),
+  sc("haircut","💇","Hair stylist","美髮沙龍","日常",2,"美髮店","說明想剪的長度和造型，並回答對方的問題","explain the haircut you want (length and style) and answer the stylist's questions","a friendly hair stylist. You ask how much to take off, what style, and make small talk while cutting.",5),
+  sc("gym","🏋️","Gym staff","健身房諮詢","日常",2,"健身房櫃檯","詢問會員方案、價格和營業時間","ask about membership plans, prices, and opening hours","a gym sales representative. You explain monthly and yearly plans, a free trial, and ask about the learner's goals.",5),
+  sc("phoneplan","📱","Phone store clerk","辦手機方案","日常",2,"電信門市","說明需求，問流量、價格和合約","explain what you need and ask about data, price and contract length","a phone store clerk. You ask how much data the learner uses, explain two plans, and ask if they need a new SIM.",5),
+  sc("clothes","👗","Shop assistant","服飾店試穿","日常",2,"服飾店","問有沒有其他尺寸或顏色，並問可不可以試穿","ask for another size or color and ask to try something on","a shop assistant who helps find sizes and colors, points to the fitting room, and gives honest opinions.",5),
+  sc("postoffice","📮","Post office clerk","郵局寄包裹","日常",2,"郵局櫃檯","寄一個包裹到台灣，問寄送方式、時間和費用","send a package to Taiwan and ask about shipping options, time and cost","a post office clerk. You ask what is inside, the weight, shipping speed, and give prices and delivery times.",5),
+  sc("coworker","🥪","New coworker","新同事午餐聊天","職場",2,"公司茶水間","自我介紹、聊聊工作內容和興趣","introduce yourself, talk about your job and share a hobby","Sam, a friendly coworker who joined recently and is having lunch with the learner for the first time.",5),
+  sc("party","🥂","Party guest","派對認識新朋友","日常",2,"朋友的生日派對","自我介紹，說明怎麼認識主人，並聊共同話題","introduce yourself, say how you know the host, and find something in common","a friendly guest at a birthday party who has just met the learner and wants to chat.",5),
+  sc("langexchange","🌏","Language exchange partner","語言交換夥伴","日常",2,"線上語言交換第一次見面","介紹自己和家鄉，並問對方的國家和文化","introduce yourself and your hometown, and ask about the partner's country and culture","a friendly language exchange partner who is curious about Taiwan and shares a little about their own country.",5),
+  sc("roommate","🧹","Roommate","和室友討論家務","日常",2,"合租公寓客廳","和室友商量輪流打掃和倒垃圾的安排","agree on a chore schedule with a roommate, such as cleaning and taking out the trash","a friendly but slightly messy roommate. You agree that chores need a plan but have your own preferences about days.",5),
+  sc("f-travel","✈️","Friend","朋友聊旅行","朋友閒聊",2,"晚餐後的閒聊","聊去過的地方和想去的地方，並討論一起旅行的計畫","talk about places you have visited and want to visit, and plan a trip together","Dana, a friend who loves traveling and wants to plan a trip with the learner. "+FR,6),
+  sc("f-social","📲","Friend","朋友聊手機與社群","朋友閒聊",2,"咖啡廳","聊最常用的 App 和社群媒體，說說自己的使用習慣","talk about your favorite apps and social media habits","Kai, a friend who is always on their phone and is curious about what apps the learner uses. "+FR,5),
+  sc("f-stress","😮‍💨","Friend","朋友聊工作壓力","朋友閒聊",2,"下班後","傾聽朋友的煩惱，給建議，並分享自己怎麼放鬆","listen to a friend's work stress, give advice, and share how you relax","Robin, a tired friend after a long week at work who needs someone to talk to. "+FR,5),
+  /* ---- 挑戰 ---- */
+  sc("interview","💼","Interviewer","面試官","職場",3,"行銷助理職缺面試","自我介紹，並說明為什麼適合這份工作","introduce yourself and explain why you are a good fit for the marketing assistant job","a professional hiring manager interviewing for a marketing assistant position. You ask about background, strengths, a past challenge, and why they want the job.",6),
+  sc("extension","🗓️","Manager","向主管爭取延期","職場",3,"主管辦公室","說明進度遇到的問題，禮貌地請求延後交期並提出新時程","explain a problem with your progress, politely ask for a deadline extension and propose a new date","a reasonable but busy manager. You ask what happened, how much is done, and need a clear new deadline before agreeing.",6),
+  sc("return","👕","Customer service agent","退換貨客服","日常",3,"服飾店客服櫃檯","說明衣服尺寸不合想退換，並回答店員的問題","explain that a shirt is the wrong size, ask for a return or exchange, and answer the agent's questions","a store customer service agent. You ask for the receipt, purchase date, whether it was worn, and explain the policy (refund within 30 days, otherwise store credit).",6),
+  sc("landlord","🏠","Landlord","房東看房","日常",3,"出租公寓看房","詢問租金、設施、押金，並表達是否有興趣","ask about rent, what is included, the deposit, and say whether you are interested","a landlord showing a one-bedroom apartment. You describe it and answer questions about rent, utilities, deposit and lease length.",6),
+  sc("doctor","🩺","Doctor","看醫生","日常",3,"診所診間","描述症狀、持續多久，並回答醫生的問題","describe your symptoms, how long you have had them, and answer the doctor's questions","a calm, caring doctor. You ask about symptoms, duration, allergies and medication, and give simple advice. You never give frightening diagnoses.",6),
+  sc("carrental","🚗","Car rental agent","租車櫃檯","旅遊",3,"機場租車櫃檯","租一台車三天，問保險、油費和還車方式","rent a car for three days and ask about insurance, fuel policy and how to return it","a car rental agent. You ask about dates, license, car size, and explain insurance options and the fuel policy.",6),
+  sc("bank","🏦","Bank teller","銀行開戶","日常",3,"銀行櫃檯","說明想開戶，問需要的文件和手續費","say you want to open an account and ask what documents are needed and about fees","a bank teller. You ask what kind of account, ask for ID and proof of address, and explain monthly fees.",6),
+  sc("luggage","🧳","Airport staff","行李遺失","旅遊",3,"機場行李服務台","說明行李沒出來，描述行李外觀，並留下聯絡方式","report missing luggage, describe the bag, and leave your contact details","a sympathetic airport baggage service agent. You ask for the flight number, a description of the bag, and a delivery address.",6),
+  sc("noise","🔊","Neighbor","向鄰居反映噪音","日常",3,"公寓走廊","禮貌地反映晚上太吵，並一起想辦法","politely tell a neighbor that the noise at night is a problem and agree on a solution","a neighbor who did not realize the music was too loud. You are a bit defensive at first but become cooperative if the learner is polite.",5),
+  sc("f-debate","💬","Friend","朋友聊看法（辯論）","朋友閒聊",3,"咖啡廳","針對「遠距工作好還是進辦公室好」表達並說明自己的看法","give and defend your opinion on whether working from home or from the office is better","Max, a friend who enjoys friendly debates and respectfully disagrees. "+FR+"Take the opposite side from the learner and ask them to explain their reasons.",6)
+];
+const byId = id => SCENARIOS.find(s => s.id === id);
+
+const DEFAULTS = () => ({
+  apiKey: "", level: "B1",
+  history: [],
+  settings: { autoSend:false, subs:true, rate:0.95,
+    llm:"llama-3.3-70b-versatile", llmFallback:"llama-3.1-8b-instant", stt:"whisper-large-v3-turbo" }
+});
+let S = load();
+function load(){
+  const d = DEFAULTS();
+  try {
+    const raw = JSON.parse(localStorage.getItem(KEY));
+    if (raw && typeof raw === "object") {
+      let level = raw.level;
+      if (!level && Array.isArray(raw.profiles)) {   // 從舊版（雙使用者）轉換
+        const old = raw.profiles.find(p => p.id === raw.active) || raw.profiles[0];
+        level = old && old.level;
+      }
+      return { ...d, apiKey: raw.apiKey || "", level: LEVELS[level] ? level : d.level,
+        settings: { ...d.settings, ...(raw.settings||{}) },
+        history: Array.isArray(raw.history) ? raw.history : [] };
+    }
+  } catch(e){}
+  return d;
+}
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){} }
+
+/* ============ 小工具 ============ */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const todayStr = () => new Date().toLocaleDateString("sv-SE");
+const dayDiff = (a,b) => Math.round((Date.parse(b) - Date.parse(a)) / 864e5);
+let toastT;
+function toast(msg, ms=2800){ const t=$("#toast"); t.textContent=msg; t.hidden=false; clearTimeout(toastT); toastT=setTimeout(()=>t.hidden=true, ms); }
+function show(name){
+  document.querySelectorAll(".view").forEach(v => v.hidden = v.id !== "v-"+name);
+  const sc = document.querySelector("#v-"+name+" .scroll, #fbBody"); if (sc) sc.scrollTop = 0;
+}
+
+/* 以「日期 + 使用者」當種子，同一天結果固定 */
+function hash(str){ let h=1779033703^str.length; for(let i=0;i<str.length;i++){ h=Math.imul(h^str.charCodeAt(i),3432918353); h=h<<13|h>>>19; } return h>>>0; }
+function rng(seed){ return function(){ seed|=0; seed=seed+0x6D2B79F5|0; let t=Math.imul(seed^seed>>>15,1|seed); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+function dailyPicks(){
+  const today = todayStr(), r = rng(hash(today + "talk-today"));
+  const recent = new Set(S.history.filter(h => dayDiff(h.date,today)>0 && dayDiff(h.date,today)<7).map(h=>h.scenarioId));
+  return [1,2,3].map(d => {
+    let pool = SCENARIOS.filter(s => s.diff===d && !recent.has(s.id));
+    if (!pool.length) pool = SCENARIOS.filter(s => s.diff===d);
+    return pool[Math.floor(r()*pool.length)];
+  });
+}
+function streakOf(){
+  const days = new Set(S.history.map(h=>h.date));
+  let d = new Date(), n = 0;
+  if (!days.has(d.toLocaleDateString("sv-SE"))) d.setDate(d.getDate()-1);
+  while (days.has(d.toLocaleDateString("sv-SE"))) { n++; d.setDate(d.getDate()-1); }
+  return n;
+}
+
+/* ============ Groq API ============ */
+function friendlyErr(status, body){
+  if (status===401) return "API Key 無效或未填寫，請到「設定」檢查。";
+  if (status===429) return "免費額度或速率到上限了，等一下再試。";
+  if (status===413) return "錄音檔太大，請說短一點。";
+  if (status===0) return "連不上網路或被瀏覽器擋下，請檢查連線。";
+  let m = ""; try { m = JSON.parse(body).error.message; } catch(e){}
+  return "服務錯誤（" + status + "）" + (m ? "：" + m : "");
+}
+async function groqChat(messages, { json=false, max=200, temp=0.7 } = {}){
+  if (!S.apiKey) throw new Error(friendlyErr(401));
+  let last;
+  for (const model of [S.settings.llm, S.settings.llmFallback].filter(Boolean)) {
+    let res;
+    try {
+      res = await fetch(API + "/chat/completions", {
+        method:"POST",
+        headers:{ "Authorization":"Bearer "+S.apiKey, "Content-Type":"application/json" },
+        body: JSON.stringify({ model, messages, temperature:temp, max_tokens:max,
+          ...(json ? { response_format:{ type:"json_object" } } : {}) })
+      });
+    } catch(e){ last = new Error(friendlyErr(0)); continue; }
+    if (res.ok) { const d = await res.json(); return (d.choices?.[0]?.message?.content || "").trim(); }
+    const body = await res.text();
+    last = new Error(friendlyErr(res.status, body));
+    if (res.status === 401) throw last;
+  }
+  throw last;
+}
+async function groqSTT(blob, ext, context){
+  if (!S.apiKey) throw new Error(friendlyErr(401));
+  const fd = new FormData();
+  fd.append("file", blob, "speech." + ext);
+  fd.append("model", S.settings.stt);
+  fd.append("language", "en");
+  fd.append("response_format", "json");
+  fd.append("temperature", "0");
+  if (context) fd.append("prompt", context);
+  let res;
+  try { res = await fetch(API + "/audio/transcriptions", { method:"POST", headers:{ "Authorization":"Bearer "+S.apiKey }, body: fd }); }
+  catch(e){ throw new Error(friendlyErr(0)); }
+  if (!res.ok) throw new Error(friendlyErr(res.status, await res.text()));
+  return ((await res.json()).text || "").trim();
+}
+
+/* ============ 語音朗讀（瀏覽器內建，免費） ============ */
+let voices = [];
+function loadVoices(){ voices = (window.speechSynthesis?.getVoices() || []).filter(v => /^en/i.test(v.lang)); }
+if ("speechSynthesis" in window) { loadVoices(); speechSynthesis.onvoiceschanged = loadVoices; }
+function pickVoice(id){
+  if (!voices.length) loadVoices();
+  if (!voices.length) return null;
+  const us = voices.filter(v => /en[-_]US/i.test(v.lang));
+  const pool = us.length ? us : voices;
+  return pool[hash(id) % pool.length];
+}
+function unlockTTS(){ try { if ("speechSynthesis" in window) { const u = new SpeechSynthesisUtterance(" "); u.volume = 0; speechSynthesis.speak(u); } } catch(e){} }
+function speak(text, rate){
+  if (!("speechSynthesis" in window)) return;
+  try {
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "en-US";
+    const v = pickVoice(C ? C.scn.id : "x"); if (v) u.voice = v;
+    u.rate = rate || S.settings.rate;
+    speechSynthesis.speak(u);
+  } catch(e){}
+}
+
+/* ============ 首頁 ============ */
+function renderHome(){
+  const lv = S.level;
+  $("#levelBar").innerHTML = Object.entries(LEVELS).map(([k,v]) =>
+    `<button class="chip" data-lv="${k}" aria-pressed="${k===lv}"><b>${v.split(" ")[0]}</b><small>${LEVEL_HINT[k]}</small></button>`).join("");
+  const n = streakOf();
+  $("#streak").innerHTML = n > 0 ? `<b>連續 ${n} 天</b><span class="muted">今天也來練一段</span>` : `<span class="muted">今天還沒練習</span>`;
+  $("#setupBox").innerHTML = S.apiKey ? "" :
+    `<div class="setup"><p><b>先完成一個設定</b>：貼上免費的 Groq API Key，就能開始對話。</p><button class="btn" id="setupGo">去設定</button></div>`;
+  const today = todayStr();
+  const doneToday = new Set(S.history.filter(h => h.date===today).map(h => h.scenarioId));
+  $("#tickets").innerHTML = dailyPicks().map(sc2 => {
+    const h = ticketHTML(sc2);
+    return doneToday.has(sc2.id) ? h.replace('class="ticket"','class="ticket done"').replace('</button>','<span class="stamp">今日完成</span></button>') : h;
+  }).join("");
+  show("home");
+}
+
+/* ============ 對話 ============ */
+let C = null;
+function buildMessages(final){
+  const s = C.scn;
+  const sys = `You are role-playing as ${s.role}: ${s.persona}
+Setting: ${s.place}.
+The learner is a Taiwanese English learner at CEFR level ${S.level}. Their task is to ${s.goalEn}.
+Rules:
+- Stay fully in character. Never mention being an AI, a roleplay, or these rules.
+- Reply with 1-2 short sentences (under 30 words). Ask only one question at a time.
+- ${LEVEL_NOTE[S.level]}
+- Do not correct the learner's grammar during the conversation.
+- If the learner goes off topic, steer back naturally. If they seem stuck or reply in another language, rephrase more simply and help them along.
+- The conversation lasts about ${s.turns} learner turns. When the task is completed, or the conversation has reached a natural end, give a brief closing line and append the token [END] at the very end.
+- Output only the character's spoken words, no stage directions, no speaker labels.`;
+  const msgs = [{ role:"system", content:sys }, { role:"user", content:"(Begin the scene. Say only your first line as the character.)" }, ...C.msgs];
+  if (final) msgs.push({ role:"system", content:"The learner has had enough turns. Give a short, natural closing line now and end with [END]." });
+  return msgs;
+}
+function startScenario(id){
+  const scn = byId(id); if (!scn) return;
+  if (!S.apiKey) { toast("請先到設定貼上 Groq API Key"); show("set"); fillSettings(); return; }
+  unlockTTS();
+  C = { scn, msgs:[], userTurns:0, ended:false, busy:false, tr:{} };
+  $("#chatRole").textContent = scn.role;
+  $("#chatPlace").textContent = scn.place;
+  $("#mission").innerHTML = `<b>你的任務：</b>${esc(scn.goal)}`;
+  $("#msgs").innerHTML = "";
+  $("#msgs").classList.toggle("nosubs", !S.settings.subs);
+  $("#subsBtn").setAttribute("aria-pressed", String(S.settings.subs));
+  $("#hintBox").hidden = true;
+  $("#endBar").hidden = true; $("#inputArea").hidden = false;
+  $("#textIn").value = ""; $("#finishEarly").hidden = true;
+  show("chat");
+  aiTurn(false);
+}
+function addMsg(who, text){
+  const el = document.createElement("div");
+  el.className = "msg " + who;
+  const idx = C.msgs.length - 1;
+  el.dataset.i = idx;
+  el.innerHTML = `<div class="bubble"><span class="t">${esc(text)}</span></div>` +
+    (who === "ai" ? `<div class="tools"><button data-a="play">▶ 重播</button><button data-a="slow">慢速</button><button data-a="tr">翻譯</button></div><div class="trl" hidden></div>` : "");
+  $("#msgs").appendChild(el);
+  $("#msgs").scrollTop = $("#msgs").scrollHeight;
+}
+function addSys(html){ const el=document.createElement("div"); el.className="sys"; el.innerHTML=html; $("#msgs").appendChild(el); $("#msgs").scrollTop=$("#msgs").scrollHeight; return el; }
+function setBusy(b, label){
+  C.busy = b;
+  $("#micBtn").disabled = b; $("#sendBtn").disabled = b; $("#textIn").disabled = b; $("#hintBtn").disabled = b;
+  $("#micLabel").textContent = b ? (label || "請稍候…") : "點一下開始說";
+  document.querySelectorAll(".typing").forEach(e => e.remove());
+  if (b && label && label.includes("回答")) { const t=document.createElement("div"); t.className="typing"; t.innerHTML='<span class="spin"></span>' + esc(label); $("#msgs").appendChild(t); $("#msgs").scrollTop=$("#msgs").scrollHeight; }
+}
+async function aiTurn(final){
+  const mine = C;
+  setBusy(true, "對方正在回答…");
+  try {
+    const raw = await groqChat(buildMessages(final), { max:120, temp:0.8 });
+    if (C !== mine) return;
+    const end = /\[END\]/i.test(raw);
+    const text = raw.replace(/\[END\]/ig, "").replace(/^["“]|["”]$/g, "").trim() || "…";
+    C.msgs.push({ role:"assistant", content:text });
+    addMsg("ai", text); speak(text);
+    if (end || final) { C.ended = true; $("#endBar").hidden = false; $("#inputArea").hidden = true; }
+    $("#finishEarly").hidden = C.userTurns < 1 || C.ended;
+  } catch(e){
+    if (C !== mine) return;
+    const el = addSys(`${esc(e.message)}<br><button class="btn ghost" data-a="retry">重試</button>`);
+    el.dataset.retry = final ? "final" : "normal";
+  } finally { if (C === mine) setBusy(false); }
+}
+function sendUser(text){
+  text = (text || "").trim();
+  if (!text || C.busy || C.ended) return;
+  stopSpeaking();
+  C.msgs.push({ role:"user", content:text });
+  C.userTurns++;
+  addMsg("me", text);
+  $("#textIn").value = ""; $("#hintBox").hidden = true;
+  aiTurn(C.userTurns >= C.scn.turns);
+}
+function stopSpeaking(){ try { speechSynthesis.cancel(); } catch(e){} }
+
+/* 提示、翻譯 */
+async function getHint(){
+  if (C.busy || C.ended) return;
+  const box = $("#hintBox"); box.hidden = false; box.textContent = "想一下…";
+  try {
+    const t = await groqChat([
+      { role:"system", content:`You help a Taiwanese English learner (CEFR ${S.level}) in a roleplay with a ${C.scn.role}. Their task: ${C.scn.goalEn}. Based on the conversation, suggest 2 different short replies they could say next (natural spoken English, under 15 words each). Format exactly:\n1. <English> （<繁體中文意思>）\n2. <English> （<繁體中文意思>）\nNothing else.` },
+      { role:"user", content: C.msgs.map(m => (m.role==="user" ? "Learner: " : C.scn.role + ": ") + m.content).join("\n") || "(The scene has not started.)" }
+    ], { max:160, temp:0.6 });
+    box.textContent = t;
+  } catch(e){ box.textContent = e.message; }
+}
+async function translateMsg(el){
+  const i = +el.dataset.i, out = el.querySelector(".trl");
+  if (!out.hidden) { out.hidden = true; return; }
+  out.hidden = false;
+  if (C.tr[i]) { out.textContent = C.tr[i]; return; }
+  out.textContent = "翻譯中…";
+  try {
+    const t = await groqChat([
+      { role:"system", content:"Translate the English text into natural Traditional Chinese (Taiwan usage). Output only the translation." },
+      { role:"user", content:C.msgs[i].content }], { max:120, temp:0.2 });
+    C.tr[i] = t; out.textContent = t;
+  } catch(e){ out.textContent = e.message; }
+}
+
+/* ============ 錄音 ============ */
+let rec=null, stream=null, chunks=[], recTimer=null, recStart=0, recCancel=false;
+async function toggleRec(){
+  if (rec && rec.state === "recording") { stopRec(false); return; }
+  if (C.busy || C.ended) return;
+  stopSpeaking();
+  if (!window.MediaRecorder || !navigator.mediaDevices?.getUserMedia) { toast("這個瀏覽器不支援錄音，請改用打字"); return; }
+  try { stream = await navigator.mediaDevices.getUserMedia({ audio:{ echoCancellation:true, noiseSuppression:true } }); }
+  catch(e){ toast("無法使用麥克風，請在瀏覽器允許麥克風權限（網頁需為 https）", 4500); return; }
+  const types = ["audio/webm;codecs=opus","audio/webm","audio/mp4","audio/ogg;codecs=opus"];
+  const mime = types.find(t => MediaRecorder.isTypeSupported(t)) || "";
+  try { rec = new MediaRecorder(stream, mime ? { mimeType:mime } : {}); }
+  catch(e){ toast("無法開始錄音，請改用打字"); stream.getTracks().forEach(t=>t.stop()); return; }
+  chunks = []; recCancel = false;
+  rec.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
+  rec.onstop = onRecStop;
+  rec.start(); recStart = Date.now();
+  $("#micBtn").classList.add("rec");
+  $("#micBtn").setAttribute("aria-label", "停止錄音");
+  recTimer = setInterval(() => {
+    const s = Math.floor((Date.now()-recStart)/1000);
+    $("#micLabel").textContent = `錄音中 ${s} 秒，點一下結束`;
+    if (s >= 30) stopRec(false);
+  }, 250);
+  $("#micLabel").textContent = "錄音中 0 秒，點一下結束";
+}
+function stopRec(cancel){
+  recCancel = !!cancel;
+  clearInterval(recTimer);
+  if (rec && rec.state === "recording") rec.stop();
+}
+async function onRecStop(){
+  clearInterval(recTimer);
+  stream && stream.getTracks().forEach(t => t.stop());
+  $("#micBtn").classList.remove("rec");
+  $("#micBtn").setAttribute("aria-label", "開始錄音");
+  $("#micLabel").textContent = "點一下開始說";
+  if (recCancel) return;
+  const type = (rec.mimeType || "audio/webm").split(";")[0];
+  const blob = new Blob(chunks, { type });
+  if (Date.now() - recStart < 700 || blob.size < 1500) { toast("錄音太短了，再說一次"); return; }
+  const ext = type.includes("mp4") ? "mp4" : type.includes("ogg") ? "ogg" : "webm";
+  const mine = C;
+  let autoText = null;
+  setBusy(true, "辨識中…");
+  try {
+    const text = await groqSTT(blob, ext, `A conversation with a ${C.scn.role}.`);
+    if (C !== mine) return;
+    if (!text) { toast("沒聽到聲音，再說一次"); }
+    else {
+      $("#textIn").value = text;
+      if (S.settings.autoSend) autoText = text;
+      else toast("確認一下文字，可修改後按送出", 3200);
+    }
+  } catch(e){ toast(e.message, 4500); }
+  if (C !== mine) return;
+  setBusy(false);
+  if (autoText) sendUser(autoText);
+}
+
+/* ============ 回饋 ============ */
+async function finish(){
+  if (!C || C.userTurns < 1) { renderHome(); return; }
+  stopSpeaking(); stopRec(true);
+  const mine = C;
+  show("fb");
+  $("#fbBody").innerHTML = `<p class="muted" style="margin-top:40px;text-align:center"><span class="spin"></span>教練正在整理回饋…</p>`;
+  const transcript = C.msgs.map(m => (m.role==="user" ? "Learner: " : C.scn.role + ": ") + m.content).join("\n");
+  const sys = `You are a warm, encouraging English speaking coach for a Taiwanese learner at CEFR ${S.level}.
+You will read a roleplay transcript. The learner's task was to ${C.scn.goalEn}.
+The learner's lines came from speech recognition, so ignore punctuation, capitalization and pronunciation. Judge only content, grammar and word choice.
+Return ONLY a JSON object with this exact shape:
+{"task_completed": true|false,
+ "score": integer 0-100 (be fair and encouraging; most sincere attempts land between 60 and 95),
+ "summary": "一句繁體中文總評，語氣鼓勵",
+ "strengths": ["繁體中文，最多2點"],
+ "corrections": [{"original":"learner's exact words","better":"a more natural or correct version","reason":"繁體中文簡短原因"}],
+ "useful_phrases": ["English phrase：繁體中文意思"],
+ "tip": "一句繁體中文的小建議"}
+Rules: at most 3 corrections, only for real mistakes or clearly unnatural phrasing in the Learner's lines. If there is nothing to fix, use an empty array. At most 3 useful_phrases, taken from the character's lines or your improved versions.`;
+  let fb;
+  try {
+    const raw = await groqChat([{ role:"system", content:sys }, { role:"user", content:transcript }], { json:true, max:900, temp:0.3 });
+    fb = JSON.parse(raw);
+  } catch(e){
+    if (C !== mine) return;
+    $("#fbBody").innerHTML = `<div class="card"><h3>回饋暫時產生不了</h3><p>${esc(e.message)}</p></div>
+      <div style="display:flex;gap:10px"><button class="btn" id="retryFb">重試</button><button class="btn ghost" data-home>回首頁</button></div>`;
+    return;
+  }
+  fb = normalizeFb(fb);
+  S.history.unshift({ date:todayStr(), scenarioId:C.scn.id, score:fb.score, completed:fb.task_completed, msgs:C.msgs, fb });
+  S.history = S.history.slice(0, 60); save();
+  renderFb(fb, C.scn, true);
+}
+function normalizeFb(fb){
+  const arr = a => Array.isArray(a) ? a : [];
+  return {
+    task_completed: !!fb.task_completed,
+    score: Math.max(0, Math.min(100, Math.round(Number(fb.score) || 70))),
+    summary: String(fb.summary || ""),
+    strengths: arr(fb.strengths).slice(0,2).map(String),
+    corrections: arr(fb.corrections).slice(0,3).filter(c => c && c.original && c.better),
+    useful_phrases: arr(fb.useful_phrases).slice(0,3).map(String),
+    tip: String(fb.tip || "")
+  };
+}
+function renderFb(fb, scn, fresh, msgs){
+  const list = msgs || (C && C.msgs) || [];
+  $("#fbBody").innerHTML = `
+    <div class="page-head"><button class="icon-btn" data-home aria-label="回首頁">←</button><h2>${esc(scn.title)}</h2></div>
+    <div class="fb-head">
+      <div class="badge ${fb.task_completed ? "ok" : ""}"><div><b>${fb.score}</b><small>${fb.task_completed ? "任務完成" : "再接再厲"}</small></div></div>
+      <p style="margin:0;font-size:17px">${esc(fb.summary)}</p>
+    </div>
+    ${fb.strengths.length ? `<div class="card"><h3>你做得好的地方</h3><ul>${fb.strengths.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div>` : ""}
+    ${fb.corrections.length ? `<div class="card"><h3>可以更自然的說法</h3>${fb.corrections.map(c => `
+      <div class="fix"><div class="o">${esc(c.original)}</div><div class="b">${esc(c.better)}</div><div class="r">${esc(c.reason || "")}</div></div>`).join("")}</div>`
+      : `<div class="card"><h3>可以更自然的說法</h3><p style="margin:0">這次沒有明顯要修的地方，很棒。</p></div>`}
+    ${fb.useful_phrases.length ? `<div class="card"><h3>這次可以帶走的句子</h3><ul>${fb.useful_phrases.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div>` : ""}
+    ${fb.tip ? `<div class="tip">${esc(fb.tip)}</div>` : ""}
+    <details class="card tr"><summary>看完整對話</summary>
+      ${list.map(m => `<p><b>${m.role==="user" ? "你" : esc(scn.role)}</b>：${esc(m.content)}</p>`).join("")}
+    </details>
+    <div style="display:flex;gap:10px;margin-top:6px">
+      <button class="btn" data-again="${scn.id}">再練一次</button>
+      <button class="btn ghost" data-home>回首頁</button>
+    </div>
+    <p class="muted" style="font-size:13px;margin-top:16px">${fresh ? "語音辨識可能自動修正文法，所以這份回饋看的是內容與用字，不評發音。" : ""}</p>`;
+  show("fb");
+}
+
+/* ============ 全部情境（自由挑選） ============ */
+const ticketHTML = s => `
+    <button class="ticket" data-s="${s.id}">
+      <div class="stub"><span aria-hidden="true">${s.emoji}</span>
+        <span class="dots" aria-label="難度 ${s.diff}／3">${[1,2,3].map(i=>`<i class="${i<=s.diff?"on":""}"></i>`).join("")}</span></div>
+      <div class="main">
+        <h3>${esc(s.title)}</h3>
+        <div class="place">${esc(s.place)}</div>
+        <div class="goal">任務：${esc(s.goal)}</div>
+        <span class="tag">${esc(s.tag)}</span>
+      </div>
+    </button>`;
+function renderAll(tag){
+  tag = tag || "";
+  const tags = ["", ...new Set(SCENARIOS.map(s => s.tag))];
+  $("#tagChips").innerHTML = tags.map(t => `<button class="chip" data-tag="${esc(t)}" aria-pressed="${t===tag}">${t || "全部"}</button>`).join("");
+  $("#allTickets").innerHTML = SCENARIOS.filter(s => !tag || s.tag === tag).map(ticketHTML).join("");
+  show("all");
+}
+
+/* ============ 紀錄、設定 ============ */
+function renderHistory(){
+  const items = S.history;
+  $("#histList").innerHTML = items.length ? items.map((h,i) => {
+    const s = byId(h.scenarioId) || { title:"對話", emoji:"💬" };
+    return `<button data-h="${S.history.indexOf(h)}"><span>${s.emoji} ${esc(s.title)}<br><span class="muted" style="font-size:13px">${esc(h.date)}${h.completed ? "・任務完成" : ""}</span></span><span class="s">${h.score}</span></button>`;
+  }).join("") : `<p class="muted">還沒有紀錄。回首頁挑一張票開始吧。</p>`;
+  show("hist");
+}
+function fillSettings(){
+  $("#apiKey").value = S.apiKey;
+  $("#rate").value = String(S.settings.rate);
+  if (![...$("#rate").options].some(o => o.value === String(S.settings.rate))) $("#rate").value = "0.95";
+  $("#optSubs").checked = S.settings.subs; $("#optAuto").checked = S.settings.autoSend;
+  $("#mLlm").value = S.settings.llm; $("#mFb").value = S.settings.llmFallback; $("#mStt").value = S.settings.stt;
+  show("set");
+}
+function saveSettings(){
+  S.apiKey = $("#apiKey").value.trim();
+  Object.assign(S.settings, {
+    rate: parseFloat($("#rate").value) || 0.95, subs: $("#optSubs").checked, autoSend: $("#optAuto").checked,
+    llm: $("#mLlm").value.trim() || DEFAULTS().settings.llm,
+    llmFallback: $("#mFb").value.trim(), stt: $("#mStt").value.trim() || DEFAULTS().settings.stt });
+  save();
+}
+
+/* ============ 事件 ============ */
+document.addEventListener("click", async e => {
+  const t = e.target.closest("button, a"); if (!t) return;
+  if (t.dataset.lv) { S.level = t.dataset.lv; save(); renderHome(); return; }
+  if (t.dataset.tag !== undefined) { renderAll(t.dataset.tag); return; }
+  if (t.dataset.s) { startScenario(t.dataset.s); return; }
+  if (t.hasAttribute("data-home")) { stopSpeaking(); stopRec(true); C = null; renderHome(); return; }
+  if (t.dataset.again) { startScenario(t.dataset.again); return; }
+  if (t.dataset.h !== undefined) {
+    const h = S.history[+t.dataset.h]; if (!h) return;
+    renderFb(normalizeFb(h.fb), byId(h.scenarioId) || { title:"對話", id:"", role:"AI" }, false, h.msgs); return;
+  }
+  const a = t.dataset.a;
+  if (a === "play" || a === "slow") {
+    const el = t.closest(".msg"); const m = C.msgs[+el.dataset.i]; speak(m.content, a === "slow" ? 0.65 : null); return;
+  }
+  if (a === "tr") { translateMsg(t.closest(".msg")); return; }
+  if (a === "retry") { const el = t.closest(".sys"); const final = el.dataset.retry === "final"; el.remove(); aiTurn(final); return; }
+});
+$("#goSettings").onclick = fillSettings;
+$("#goHistory").onclick = renderHistory;
+$("#goAll").onclick = () => renderAll("");
+document.addEventListener("click", e => { if (e.target.id === "setupGo") fillSettings(); if (e.target.id === "retryFb") finish(); });
+$("#saveSet").onclick = () => { saveSettings(); toast("已儲存"); renderHome(); };
+$("#testKey").onclick = async () => {
+  saveSettings(); toast("測試中…");
+  try { await groqChat([{ role:"user", content:"Say OK." }], { max:5 }); toast("連線成功，可以開始練習了"); }
+  catch(e){ toast(e.message, 4500); }
+};
+$("#chatBack").onclick = () => {
+  if (C && C.userTurns > 0 && !C.ended && !confirm("離開後這次對話不會產生回饋，確定離開？")) return;
+  stopSpeaking(); stopRec(true); C = null; renderHome();
+};
+$("#subsBtn").onclick = () => {
+  S.settings.subs = !S.settings.subs; save();
+  $("#subsBtn").setAttribute("aria-pressed", String(S.settings.subs));
+  $("#msgs").classList.toggle("nosubs", !S.settings.subs);
+};
+$("#msgs").addEventListener("click", e => { const t = e.target.closest(".t"); if (t && $("#msgs").classList.contains("nosubs")) t.classList.toggle("reveal"); });
+$("#hintBtn").onclick = getHint;
+$("#micBtn").onclick = toggleRec;
+$("#sendBtn").onclick = () => sendUser($("#textIn").value);
+$("#textIn").addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); sendUser($("#textIn").value); } });
+$("#finishEarly").onclick = finish;
+$("#seeFb").onclick = finish;
+$("#again2").onclick = () => startScenario(C.scn.id);
+window.addEventListener("pagehide", () => { stopSpeaking(); });
+
+renderHome();
+</script>
+</body>
+</html>
