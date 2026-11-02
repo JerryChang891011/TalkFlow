@@ -192,7 +192,7 @@ details.tr summary{cursor:pointer;color:var(--muted)}
       <h1 class="hello">今天想跟誰聊聊？</h1>
       <div class="streak" id="streak"></div>
       <div class="levelhead">對話難度</div>
-      <div class="levelbar" id="levelBar" role="group" aria-label="選擇 AI 說話難度"></div>
+      <div class="levelbar" id="levelBar" role="group" aria-label="選擇對話難度"></div>
       <div id="setupBox"></div>
       <div id="drawPanel">
         <div class="deck" id="deck" aria-hidden="true"><div class="back b1"></div><div class="back b2"></div><div class="back b3"></div></div>
@@ -302,7 +302,6 @@ details.tr summary{cursor:pointer;color:var(--muted)}
 const API = "https://api.groq.com/openai/v1";
 const KEY = "talktoday.v1";
 const LEVELS = { A2: "初級 A2", B1: "中級 B1", B2: "中高級 B2" };
-const LEVEL_HINT = { A2:"慢、簡單", B1:"自然、清楚", B2:"道地、有追問" };
 const LEVEL_NOTE = {
   A2: "Use very simple, common words and short sentences. Speak slowly and clearly. No idioms or slang.",
   B1: "Use everyday vocabulary and clear, natural sentences. Avoid rare idioms.",
@@ -608,7 +607,7 @@ async function drawToday(){
 function renderHome(){
   const lv = S.level;
   $("#levelBar").innerHTML = Object.entries(LEVELS).map(([k,v]) =>
-    `<button class="chip" data-lv="${k}" aria-pressed="${k===lv}"><b>${v.split(" ")[0]}</b><small>${LEVEL_HINT[k]}</small></button>`).join("");
+    `<button class="chip" data-lv="${k}" aria-pressed="${k===lv}"><b>${v.split(" ")[0]}</b></button>`).join("");
   const n = streakOf();
   $("#streak").innerHTML = n > 0 ? `<b>連續 ${n} 天</b><span class="muted">今天也來練一段</span>` : `<span class="muted">今天還沒練習</span>`;
   $("#setupBox").innerHTML = S.apiKey ? "" :
