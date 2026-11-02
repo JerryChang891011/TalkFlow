@@ -57,7 +57,7 @@ h1,h2,h3{font-family:var(--display);margin:0;line-height:1.2;letter-spacing:-.01
 
 /* Home */
 .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
-.brand{font-family:var(--display);font-weight:700;font-size:20px}
+.brand{font-family:var(--display);font-weight:700;font-size:22px}
 .chips{display:flex;gap:8px;flex-wrap:wrap}
 .chip{border:1.5px solid var(--line);background:transparent;border-radius:999px;padding:5px 14px;font-weight:500}
 .chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
@@ -191,18 +191,16 @@ details.tr summary{cursor:pointer;color:var(--muted)}
       </div>
       <h1 class="hello">今天想跟誰聊聊？</h1>
       <div class="streak" id="streak"></div>
-      <div class="levelhead">AI 說話難度</div>
+      <div class="levelhead">對話難度</div>
       <div class="levelbar" id="levelBar" role="group" aria-label="選擇 AI 說話難度"></div>
-      <p class="levelnote">決定 AI 說話的速度和用字。今天抽到哪些情境，不受這個影響。</p>
       <div id="setupBox"></div>
       <div id="drawPanel">
         <div class="deck" id="deck" aria-hidden="true"><div class="back b1"></div><div class="back b2"></div><div class="back b3"></div></div>
         <button class="btn sun drawbtn" id="drawBtn">抽選今日的票卡</button>
-        <p class="muted drawhint">每天抽一次，會抽出「情境」簡單、中等、挑戰各一張</p>
       </div>
       <div class="tickets" id="tickets"></div>
       <div class="foot">
-        <button class="link" id="goAll">全部情境</button>
+        <button class="link" id="goAll">自由練習</button>
         <button class="link" id="goHistory">練習紀錄</button>
         <button class="link" id="goSettings">設定</button>
       </div>
@@ -268,12 +266,12 @@ details.tr summary{cursor:pointer;color:var(--muted)}
     <div class="scroll">
       <div class="page-head"><button class="icon-btn" data-home aria-label="返回">←</button><h2>設定</h2></div>
       <div class="field">
-        <label for="apiKey">Groq API Key（免費）</label>
+        <label for="apiKey">API Key</label>
         <input id="apiKey" type="password" placeholder="gsk_..." autocomplete="off">
-        <span class="muted" style="font-size:14px">到 <a href="https://console.groq.com/keys" target="_blank" rel="noopener">console.groq.com/keys</a> 登入後建立。Key 只會存在這台裝置的瀏覽器裡，每支手機或電腦各填一次。</span>
+        <span class="muted" style="font-size:14px">可到 <a href="https://console.groq.com/keys" target="_blank" rel="noopener">console.groq.com/keys</a> 登入後取得免費API Key。</span>
       </div>
       <div class="field">
-        <label for="rate">AI 說話速度</label>
+        <label for="rate">說話速度</label>
         <select id="rate">
           <option value="0.8">慢</option><option value="0.95">正常</option><option value="1.1">快</option>
         </select>
@@ -292,7 +290,6 @@ details.tr summary{cursor:pointer;color:var(--muted)}
         <button class="btn" id="saveSet">儲存</button>
         <button class="btn ghost" id="testKey">測試連線</button>
       </div>
-      <p class="muted" style="font-size:13.5px;margin-top:22px">語音辨識會把錄音送到 Groq 轉成文字，錄音檔不會被這個網頁儲存。學習紀錄只存在你的瀏覽器。</p>
     </div>
   </section>
 
@@ -615,7 +612,7 @@ function renderHome(){
   const n = streakOf();
   $("#streak").innerHTML = n > 0 ? `<b>連續 ${n} 天</b><span class="muted">今天也來練一段</span>` : `<span class="muted">今天還沒練習</span>`;
   $("#setupBox").innerHTML = S.apiKey ? "" :
-    `<div class="setup"><p><b>先完成一個設定</b>：貼上免費的 Groq API Key，就能開始對話。</p><button class="btn" id="setupGo">去設定</button></div>`;
+    `<div class="setup"><p><b>先完成一個設定</b>：設定API Key。</p><button class="btn" id="setupGo">去設定</button></div>`;
   const drawn = isDrawnToday();
   $("#drawPanel").hidden = drawn;
   $("#deck").className = "deck";
