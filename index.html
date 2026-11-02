@@ -61,7 +61,9 @@ h1,h2,h3{font-family:var(--display);margin:0;line-height:1.2;letter-spacing:-.01
 .chips{display:flex;gap:8px;flex-wrap:wrap}
 .chip{border:1.5px solid var(--line);background:transparent;border-radius:999px;padding:5px 14px;font-weight:500}
 .chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
-.levelbar{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:24px}
+.levelhead{font-weight:700;font-size:14px;margin-bottom:6px}
+.levelnote{font-size:13px;color:var(--muted);margin:8px 0 22px;line-height:1.5}
+.levelbar{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .levelbar .chip{border-radius:12px;padding:8px 6px;display:flex;flex-direction:column;align-items:center;line-height:1.25}
 .levelbar .chip b{font-family:var(--display);font-size:17px}
 .levelbar .chip small{font-size:12px;opacity:.8}
@@ -98,7 +100,8 @@ h1,h2,h3{font-family:var(--display);margin:0;line-height:1.2;letter-spacing:-.01
 .ticket h3{font-size:20px}
 .ticket .place{font-size:13px;color:var(--muted);margin:2px 0 8px}
 .ticket .goal{font-size:14.5px}
-.ticket .tag{display:inline-block;font-size:12px;border:1px solid var(--line);border-radius:6px;padding:0 7px;margin-top:8px;color:var(--muted)}
+.ticket .tag{display:inline-block;font-size:12px;border:1px solid var(--line);border-radius:6px;padding:0 7px;margin:8px 6px 0 0;color:var(--muted)}
+.ticket .tag.lvl{color:var(--accent);border-color:var(--accent)}
 .ticket:hover{border-color:var(--accent)}
 .ticket.done .main{opacity:.6}
 .stamp{position:absolute;right:12px;top:10px;transform:rotate(-8deg);border:2px solid var(--ok);color:var(--ok);font-weight:700;font-size:13px;padding:0 8px;border-radius:6px;font-family:var(--display)}
@@ -188,12 +191,14 @@ details.tr summary{cursor:pointer;color:var(--muted)}
       </div>
       <h1 class="hello">今天想跟誰聊聊？</h1>
       <div class="streak" id="streak"></div>
-      <div class="levelbar" id="levelBar" role="group" aria-label="選擇難度"></div>
+      <div class="levelhead">AI 說話難度</div>
+      <div class="levelbar" id="levelBar" role="group" aria-label="選擇 AI 說話難度"></div>
+      <p class="levelnote">決定 AI 說話的速度和用字。今天抽到哪些情境，不受這個影響。</p>
       <div id="setupBox"></div>
       <div id="drawPanel">
         <div class="deck" id="deck" aria-hidden="true"><div class="back b1"></div><div class="back b2"></div><div class="back b3"></div></div>
         <button class="btn sun drawbtn" id="drawBtn">抽選今日的票卡</button>
-        <p class="muted drawhint">每天抽一次，會抽出簡單、中等、挑戰各一張</p>
+        <p class="muted drawhint">每天抽一次，會抽出「情境」簡單、中等、挑戰各一張</p>
       </div>
       <div class="tickets" id="tickets"></div>
       <div class="foot">
@@ -896,15 +901,16 @@ function renderFb(fb, scn, fresh, msgs){
 }
 
 /* ============ 全部情境（自由挑選） ============ */
+const DIFF_LABEL = { 1:"簡單", 2:"中等", 3:"挑戰" };
 const ticketHTML = (s, cls="", style="") => `
     <button class="ticket ${cls}" ${style ? `style="${style}"` : ""} data-s="${s.id}">
       <div class="stub"><span aria-hidden="true">${s.emoji}</span>
-        <span class="dots" aria-label="難度 ${s.diff}／3">${[1,2,3].map(i=>`<i class="${i<=s.diff?"on":""}"></i>`).join("")}</span></div>
+        <span class="dots" aria-label="情境難度 ${s.diff}／3">${[1,2,3].map(i=>`<i class="${i<=s.diff?"on":""}"></i>`).join("")}</span></div>
       <div class="main">
         <h3>${esc(s.title)}</h3>
         <div class="place">${esc(s.place)}</div>
         <div class="goal">任務：${esc(s.goal)}</div>
-        <span class="tag">${esc(s.tag)}</span>
+        <span class="tag">${esc(s.tag)}</span><span class="tag lvl">情境${DIFF_LABEL[s.diff]}</span>
       </div>
     </button>`;
 function renderAll(tag){
