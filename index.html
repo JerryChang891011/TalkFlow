@@ -277,6 +277,7 @@ details.tr summary{cursor:pointer;color:var(--muted)}
       <div class="check"><input type="checkbox" id="optAuto"><label for="optAuto">語音辨識完直接送出（不先確認文字）</label></div>
       <details style="margin-bottom:16px">
         <summary class="muted">進階：模型名稱</summary>
+        <p class="muted" style="font-size:13.5px;margin:8px 0 0">預設的 llama-3.3-70b-versatile 回應最快。改用 gpt-oss 這類「推理型」模型也可以，但每句話會比較慢。</p>
         <div class="field" style="margin-top:10px"><label for="mLlm">對話模型</label><input id="mLlm"></div>
         <div class="field"><label for="mFb">備用模型（主模型額度用完時使用）</label><input id="mFb"></div>
         <div class="field"><label for="mStt">語音辨識模型</label><input id="mStt"></div>
@@ -488,6 +489,13 @@ function friendlyErr(status, body){
   let m = ""; try { m = JSON.parse(body).error.message; } catch(e){}
   return "服務錯誤（" + status + "）" + (m ? "：" + m : "");
 }
+/* 推理型模型（gpt-oss、qwen3）會先「想」再回答，想的內容也算進字數上限，
+   所以要降低推理強度、隱藏推理內容，並多給一些額度，否則回答會是空白 */
+function modelParams(model, max){
+  if (/gpt-oss/i.test(model)) return { max_completion_tokens: max + 1200, reasoning_effort:"low", include_reasoning:false };
+  if (/qwen3/i.test(model)) return { max_completion_tokens: max + 200, reasoning_effort:"none" };
+  return { max_tokens: max };
+}
 async function groqChatRaw(messages, { json=false, max=200, temp=0.7 } = {}){
   if (!S.apiKey) throw new Error(friendlyErr(401));
   let last;
@@ -498,7 +506,8 @@ async function groqChatRaw(messages, { json=false, max=200, temp=0.7 } = {}){
       res = await fetch(API + "/chat/completions", {
         method:"POST", signal: ctl.signal,
         headers:{ "Authorization":"Bearer "+S.apiKey, "Content-Type":"application/json" },
-        body: JSON.stringify({ model, messages, temperature:temp, max_tokens:max,
+        body: JSON.stringify({ model, messages, temperature:temp,
+          ...modelParams(model, max),
           ...(json ? { response_format:{ type:"json_object" } } : {}) })
       });
     } catch(e){
@@ -945,7 +954,7 @@ document.addEventListener("click", e => { if (e.target.id === "setupGo") fillSet
 $("#saveSet").onclick = () => { saveSettings(); toast("已儲存"); renderHome(); };
 $("#testKey").onclick = async () => {
   saveSettings(); toast("測試中…");
-  try { await groqChat([{ role:"user", content:"Say OK." }], { max:5 }); toast("連線成功，可以開始練習了"); }
+  try { await groqChat([{ role:"user", content:"Say OK." }], { max:20 }); toast("連線成功，可以開始練習了"); }
   catch(e){ toast(e.message, 4500); }
 };
 $("#chatBack").onclick = () => {
