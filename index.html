@@ -276,11 +276,12 @@ details.tr summary{cursor:pointer;color:var(--muted)}
       <div class="check"><input type="checkbox" id="optSubs"><label for="optSubs">每次對話一開始就顯示英文字幕（預設關閉）</label></div>
       <div class="check"><input type="checkbox" id="optAuto"><label for="optAuto">語音辨識完直接送出（不先確認文字）</label></div>
       <details style="margin-bottom:16px">
-        <summary class="muted">進階：模型名稱</summary>
-        <p class="muted" style="font-size:13.5px;margin:8px 0 0">預設的 llama-3.3-70b-versatile 回應最快。改用 gpt-oss 這類「推理型」模型也可以，但每句話會比較慢。</p>
-        <div class="field" style="margin-top:10px"><label for="mLlm">對話模型</label><input id="mLlm"></div>
-        <div class="field"><label for="mFb">備用模型（主模型額度用完時使用）</label><input id="mFb"></div>
-        <div class="field"><label for="mStt">語音辨識模型</label><input id="mStt"></div>
+        <summary class="muted">進階：模型</summary>
+        <p class="muted" style="font-size:13.5px;margin:8px 0 10px">Groq 會不定期下架模型。如果突然全部連不上，先按下面的「載入可用模型」，再重新選一個。gpt-oss 這類推理型模型每句話會比較慢。</p>
+        <button class="btn ghost" id="loadModels" type="button">載入可用模型</button>
+        <div class="field" style="margin-top:12px"><label for="mLlm">對話模型</label><select id="mLlm"></select></div>
+        <div class="field"><label for="mFb">備用模型（主模型額度用完時使用）</label><select id="mFb"></select></div>
+        <div class="field"><label for="mStt">語音辨識模型</label><select id="mStt"></select></div>
       </details>
       <div style="display:flex;gap:10px">
         <button class="btn" id="saveSet">儲存</button>
@@ -419,11 +420,12 @@ function makeVariant(scn){
 }
 const byId = id => SCENARIOS.find(s => s.id === id);
 
+const RETIRED = ["llama-3.3-70b-versatile", "llama-3.1-8b-instant"];   // Groq 已下架的舊預設模型
 const DEFAULTS = () => ({
   apiKey: "", level: "B1", drawnDate: "", lastV: {},
   history: [],
   settings: { autoSend:false, subs:false, subsV:3, rate:0.95,
-    llm:"llama-3.3-70b-versatile", llmFallback:"llama-3.1-8b-instant", stt:"whisper-large-v3-turbo" }
+    llm:"openai/gpt-oss-120b", llmFallback:"openai/gpt-oss-20b", stt:"whisper-large-v3-turbo" }
 });
 let S = load();
 function load(){
@@ -439,9 +441,11 @@ function load(){
         const old = raw.profiles.find(p => p.id === raw.active) || raw.profiles[0];
         level = old && old.level;
       }
-      return { ...d, apiKey: raw.apiKey || "", level: LEVELS[level] ? level : d.level, drawnDate: raw.drawnDate || "", lastV: raw.lastV || {},
+      const out = { ...d, apiKey: raw.apiKey || "", level: LEVELS[level] ? level : d.level, drawnDate: raw.drawnDate || "", lastV: raw.lastV || {},
         settings: { ...d.settings, ...(raw.settings||{}) },
         history: Array.isArray(raw.history) ? raw.history : [] };
+      for (const k of ["llm","llmFallback"]) if (RETIRED.includes(out.settings[k])) out.settings[k] = d.settings[k];
+      return out;
     }
   } catch(e){}
   return d;
@@ -486,6 +490,7 @@ function friendlyErr(status, body){
   if (status===429) return "免費額度或速率到上限了，等一下再試。";
   if (status===413) return "錄音檔太大，請說短一點。";
   if (status===0) return "連不上網路或被瀏覽器擋下，請檢查連線。";
+  if (status===404 || /decommission|model_not_found|does not exist|no longer supported/i.test(body || "")) return "這個模型已經下架或不能用，請到「設定 → 進階」按「載入可用模型」重新選擇。";
   let m = ""; try { m = JSON.parse(body).error.message; } catch(e){}
   return "服務錯誤（" + status + "）" + (m ? "：" + m : "");
 }
@@ -496,34 +501,43 @@ function modelParams(model, max){
   if (/qwen3/i.test(model)) return { max_completion_tokens: max + 200, reasoning_effort:"none" };
   return { max_tokens: max };
 }
+async function groqPost(model, params, messages, temp, json){
+  const ctl = new AbortController(), timer = setTimeout(() => ctl.abort(), 30000);
+  try {
+    const res = await fetch(API + "/chat/completions", {
+      method:"POST", signal: ctl.signal,
+      headers:{ "Authorization":"Bearer "+S.apiKey, "Content-Type":"application/json" },
+      body: JSON.stringify({ model, messages, temperature:temp, ...params,
+        ...(json ? { response_format:{ type:"json_object" } } : {}) })
+    });
+    if (res.ok) return { ok:true, data: await res.json() };
+    return { ok:false, status:res.status, body: await res.text() };
+  } catch(e){ return { ok:false, status:0, aborted: !!(e && e.name === "AbortError") }; }
+  finally { clearTimeout(timer); }
+}
 async function groqChatRaw(messages, { json=false, max=200, temp=0.7 } = {}){
   if (!S.apiKey) throw new Error(friendlyErr(401));
   let last;
   for (const model of [S.settings.llm, S.settings.llmFallback].filter(Boolean)) {
-    let res;
-    const ctl = new AbortController(), timer = setTimeout(() => ctl.abort(), 30000);
-    try {
-      res = await fetch(API + "/chat/completions", {
-        method:"POST", signal: ctl.signal,
-        headers:{ "Authorization":"Bearer "+S.apiKey, "Content-Type":"application/json" },
-        body: JSON.stringify({ model, messages, temperature:temp,
-          ...modelParams(model, max),
-          ...(json ? { response_format:{ type:"json_object" } } : {}) })
-      });
-    } catch(e){
-      last = new Error(e && e.name === "AbortError" ? "連線逾時，請再試一次。" : friendlyErr(0));
-      continue;
-    } finally { clearTimeout(timer); }
-    if (res.ok) {
-      const d = await res.json();
-      const out = String(d.choices?.[0]?.message?.content || "").replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
-      if (out) return { text: out, finish: d.choices?.[0]?.finish_reason || "" };
-      last = new Error("AI 沒有回應，請再試一次。");
-      continue;
+    // 推理型模型：先用「低推理」設定；若被拒絕或回空白，再用一般設定加大額度重試
+    const sets = [modelParams(model, max)];
+    if (!("max_tokens" in sets[0])) sets.push({ max_completion_tokens: max + 1500 });
+    for (let k = 0; k < sets.length; k++) {
+      const r = await groqPost(model, sets[k], messages, temp, json);
+      if (r.ok) {
+        const c = r.data.choices?.[0];
+        const out = String(c?.message?.content || "").replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
+        if (out) return { text: out, finish: c?.finish_reason || "" };
+        last = new Error("AI 沒有回應，請再試一次。");
+        if (k + 1 < sets.length) continue;
+        break;
+      }
+      if (r.status === 0) { last = new Error(r.aborted ? "連線逾時，請再試一次。" : friendlyErr(0)); break; }
+      last = new Error(friendlyErr(r.status, r.body));
+      if (r.status === 401) throw last;
+      if (r.status === 400 && k + 1 < sets.length && /reasoning|unsupported|unrecognized|unknown|invalid/i.test(r.body)) continue;
+      break;
     }
-    const body = await res.text();
-    last = new Error(friendlyErr(res.status, body));
-    if (res.status === 401) throw last;
   }
   throw last;
 }
@@ -910,20 +924,55 @@ function renderHistory(){
   }).join("") : `<p class="muted">還沒有紀錄。回首頁挑一張票開始吧。</p>`;
   show("hist");
 }
+function setOptions(sel, list, current, allowEmpty){
+  const ids = [...new Set([current, ...list].filter(Boolean))];
+  sel.innerHTML = (allowEmpty ? '<option value="">（不使用備用模型）</option>' : "") +
+    ids.map(id => `<option value="${esc(id)}">${esc(id)}</option>`).join("");
+  sel.value = current || (allowEmpty ? "" : ids[0]);
+}
+function fillModelSelects(chat, stt, cur){
+  const d = DEFAULTS().settings;
+  cur = cur || S.settings;
+  chat = chat || [d.llm, d.llmFallback]; stt = stt || [d.stt, "whisper-large-v3"];
+  setOptions($("#mLlm"), chat, cur.llm, false);
+  setOptions($("#mFb"), chat, cur.llmFallback, true);
+  setOptions($("#mStt"), stt, cur.stt, false);
+}
+async function loadModels(){
+  const key = $("#apiKey").value.trim() || S.apiKey;
+  if (!key) { toast("請先貼上 Groq API Key"); return; }
+  const btn = $("#loadModels"); btn.disabled = true; btn.textContent = "載入中…";
+  try {
+    const res = await fetch(API + "/models", { headers:{ "Authorization":"Bearer " + key } });
+    if (!res.ok) throw new Error(friendlyErr(res.status, await res.text()));
+    const ids = ((await res.json()).data || []).map(m => m.id).sort();
+    const chat = ids.filter(id => !/whisper|orpheus|guard|safeguard|tts|embed/i.test(id));
+    const stt = ids.filter(id => /whisper/i.test(id));
+    const keep = { llm: $("#mLlm").value, fb: $("#mFb").value, stt: $("#mStt").value };
+    // 目前選的模型如果已經不在清單裡，就自動改成清單中的第一個可用模型
+    const cur = {
+      llm: chat.includes(keep.llm) ? keep.llm : (chat.includes(DEFAULTS().settings.llm) ? DEFAULTS().settings.llm : chat[0] || keep.llm),
+      llmFallback: chat.includes(keep.fb) ? keep.fb : "",
+      stt: stt.includes(keep.stt) ? keep.stt : (stt[0] || keep.stt) };
+    fillModelSelects(chat, stt, cur);
+    toast(`找到 ${chat.length} 個對話模型、${stt.length} 個語音辨識模型。確認後按「儲存」`, 4500);
+  } catch(e){ toast(e.message, 4500); }
+  finally { btn.disabled = false; btn.textContent = "載入可用模型"; }
+}
 function fillSettings(){
   $("#apiKey").value = S.apiKey;
   $("#rate").value = String(S.settings.rate);
   if (![...$("#rate").options].some(o => o.value === String(S.settings.rate))) $("#rate").value = "0.95";
   $("#optSubs").checked = S.settings.subs; $("#optAuto").checked = S.settings.autoSend;
-  $("#mLlm").value = S.settings.llm; $("#mFb").value = S.settings.llmFallback; $("#mStt").value = S.settings.stt;
+  fillModelSelects();
   show("set");
 }
 function saveSettings(){
   S.apiKey = $("#apiKey").value.trim();
   Object.assign(S.settings, {
     rate: parseFloat($("#rate").value) || 0.95, subs: $("#optSubs").checked, autoSend: $("#optAuto").checked,
-    llm: $("#mLlm").value.trim() || DEFAULTS().settings.llm,
-    llmFallback: $("#mFb").value.trim(), stt: $("#mStt").value.trim() || DEFAULTS().settings.stt });
+    llm: $("#mLlm").value || DEFAULTS().settings.llm,
+    llmFallback: $("#mFb").value, stt: $("#mStt").value || DEFAULTS().settings.stt });
   save();
 }
 
@@ -951,6 +1000,7 @@ $("#drawBtn").onclick = drawToday;
 $("#goHistory").onclick = renderHistory;
 $("#goAll").onclick = () => renderAll("");
 document.addEventListener("click", e => { if (e.target.id === "setupGo") fillSettings(); if (e.target.id === "retryFb") finish(); });
+$("#loadModels").onclick = loadModels;
 $("#saveSet").onclick = () => { saveSettings(); toast("已儲存"); renderHome(); };
 $("#testKey").onclick = async () => {
   saveSettings(); toast("測試中…");
