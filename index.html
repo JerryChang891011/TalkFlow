@@ -74,23 +74,13 @@ h1,h2,h3{font-family:var(--display);margin:0;line-height:1.2;letter-spacing:-.01
 .setup p{margin:0 0 10px}
 .tickets{display:grid;gap:16px;perspective:900px}
 .deck{position:relative;height:210px;margin:6px auto 40px;width:100%;max-width:340px}
-.deck .back{position:absolute;left:50%;top:14px;width:78%;margin-left:-39%;aspect-ratio:720/440;background:url("card-back.png") center/100% 100% no-repeat;filter:drop-shadow(0 6px 10px rgba(0,0,0,.3))}
-.deck .b1{transform:rotate(-7deg)}
-.deck .b2{transform:rotate(5deg)}
-.deck .b3{transform:rotate(-1deg)}
-.deck.shuffle .b1{animation:sh1 .5s ease-in-out 4}
-.deck.shuffle .b2{animation:sh2 .5s ease-in-out 4}
-.deck.shuffle .b3{animation:sh3 .5s ease-in-out 4}
-@keyframes sh1{0%,100%{transform:rotate(-7deg)}30%{transform:translateX(-40px) rotate(-14deg)}60%{transform:translateX(36px) rotate(8deg)}}
-@keyframes sh2{0%,100%{transform:rotate(5deg)}30%{transform:translateX(40px) rotate(12deg)}60%{transform:translateX(-36px) rotate(-8deg)}}
-@keyframes sh3{0%,100%{transform:rotate(-1deg)}30%{transform:translateY(-18px) rotate(3deg)}60%{transform:translateY(8px) rotate(-3deg)}}
-.deck.out{animation:deckout .35s ease-in both}
-@keyframes deckout{to{opacity:0;transform:translateY(-16px) scale(.9)}}
+.deck .back{position:absolute;left:50%;top:30px;width:70%;margin-left:-35%;aspect-ratio:720/440;background:url("card-back.png") center/100% 100% no-repeat;filter:drop-shadow(0 2px 3px rgba(0,0,0,.28));will-change:transform;backface-visibility:hidden}
+.deck.deck-ghost{position:absolute;margin:0;max-width:none;pointer-events:none;z-index:60}
 .drawbtn{width:100%;font-size:18px;padding:14px}
 .drawhint{text-align:center;font-size:14px;margin:10px 0 0}
 .ticket.deal{animation:deal .65s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i) * .25s)}
 @keyframes deal{from{opacity:0;transform:translateY(-36px) rotateX(75deg) scale(.92)}to{opacity:1;transform:none}}
-@media (prefers-reduced-motion:reduce){.deck.shuffle .back{animation:none}.ticket.deal{animation:none}.deck.out{animation:none;opacity:0}}
+@media (prefers-reduced-motion:reduce){.ticket.deal{animation:none}}
 .ticket{display:grid;grid-template-columns:78px 1fr;background:var(--paper);border:1px solid var(--line);border-radius:14px;position:relative;text-align:left;width:100%;padding:0;overflow:visible}
 .ticket::before,.ticket::after{content:"";position:absolute;left:69px;width:18px;height:18px;border-radius:50%;background:var(--bg)}
 .ticket::before{top:-10px}.ticket::after{bottom:-10px}
@@ -195,7 +185,7 @@ details.tr summary{cursor:pointer;color:var(--muted)}
       <div class="levelbar" id="levelBar" role="group" aria-label="選擇對話難度"></div>
       <div id="setupBox"></div>
       <div id="drawPanel">
-        <div class="deck" id="deck" aria-hidden="true"><div class="back b1"></div><div class="back b2"></div><div class="back b3"></div></div>
+        <div class="deck" id="deck" aria-hidden="true"></div>
         <button class="btn sun drawbtn" id="drawBtn">抽選今日的票卡</button>
       </div>
       <div class="tickets" id="tickets"></div>
@@ -594,15 +584,113 @@ function ticketsHTML(animate){
     return done.has(sc2.id) ? h.replace("</button>", '<span class="stamp">今日完成</span></button>') : h;
   }).join("");
 }
+/* ---- 洗牌 + 抽牌動畫 ---- */
+const DECK_N = 14, PILE_X = 62, CARD_TOP = 30;
+let deckOrder = [];   // 牌堆目前由下到上的順序
+const FL = (x, y, r, sc, ry) => `translate(${x}px,${y}px) rotate(${r}deg) scale(${sc}) perspective(700px) rotateY(${ry}deg)`;
+const stackTf = (el, i) => FL(el._j.x, -i * 1.3, el._j.r, 1, 0);                              // 疊在一起
+const pileTf  = (el, j, side) => FL(side * PILE_X + el._j.x, 8 - j * 1.3, side * 4 + el._j.r, 1, 0);   // 分成左右兩疊
+const midTf   = (el, k, side) => FL(side * 18, -k * 1.3 - 22, side * 2, 1, 0);                  // 落下途中
+const mv = (el, tfs, opts) => el.animate(tfs.map(t => ({ transform: t })), { fill: "forwards", ...opts }).finished;
+
+function buildDeck(){
+  const deck = $("#deck");
+  deck.className = "deck"; deck.innerHTML = "";
+  deckOrder = [];
+  for (let i = 0; i < DECK_N; i++){
+    const el = document.createElement("div");
+    el.className = "back";
+    el._j = { x: (Math.random() - .5) * 2, r: (Math.random() - .5) * 2.4 };   // 每張牌微小的歪斜，看起來像真的一副牌
+    el.style.zIndex = i; el.style.transform = stackTf(el, i);
+    deck.appendChild(el); deckOrder.push(el);
+  }
+}
+function commitDeck(){
+  deckOrder.forEach((el, k) => { el.style.transform = stackTf(el, k); el.style.zIndex = k; el.getAnimations().forEach(a => a.cancel()); });
+}
+/* 一次交錯洗牌：切成左右兩疊 → 一張（偶爾兩張）交錯落回中間 */
+async function riffleOnce(round){
+  const n = deckOrder.length;
+  const cut = Math.round(n / 2) + Math.floor(Math.random() * 3) - 1;
+  const lo = deckOrder.slice(0, cut), hi = deckOrder.slice(cut);
+  const side = new Map();
+  lo.forEach((el, j) => { side.set(el, -1); el.style.zIndex = j;      mv(el, [stackTf(el, j),       pileTf(el, j, -1)], { duration: 280, easing: "cubic-bezier(.3,.7,.3,1)" }); });
+  hi.forEach((el, j) => { side.set(el,  1); el.style.zIndex = 20 + j; mv(el, [stackTf(el, cut + j), pileTf(el, j,  1)], { duration: 280, easing: "cubic-bezier(.3,.7,.3,1)" }); });
+  await sleep(300);
+  const A = round % 2 ? hi : lo, B = round % 2 ? lo : hi;
+  const merged = []; let a = 0, b = 0, turn = 0;
+  while (a < A.length || b < B.length){
+    const take = Math.random() < .25 ? 2 : 1;
+    for (let t = 0; t < take; t++){
+      if (turn % 2 === 0){ if (a < A.length) merged.push(A[a++]); }
+      else               { if (b < B.length) merged.push(B[b++]); }
+    }
+    turn++;
+  }
+  const STEP = 38, DUR = 220;
+  const jobs = merged.map((el, k) => {
+    const s = side.get(el), src = (s < 0 ? lo : hi).indexOf(el);
+    setTimeout(() => { el.style.zIndex = 100 + k; }, k * STEP);
+    return mv(el, [pileTf(el, src, s), midTf(el, k, s), stackTf(el, k)], { duration: DUR, delay: k * STEP, easing: "ease-in-out" });
+  });
+  await Promise.all(jobs);
+  deckOrder = merged; commitDeck();
+}
+async function shuffleDeck(){
+  for (let r = 0; r < 3; r++) await riffleOnce(r);          // 3 次交錯洗牌，約 3 秒
+  await $("#deck").animate([{ transform: "translateY(0)" }, { transform: "translateY(-6px)" }, { transform: "translateY(0)" }], { duration: 200, easing: "ease-out" }).finished;   // 把牌敲整齊
+}
+/* 從牌堆頂飛出 3 張牌背，落在票卡位置後翻面 */
+async function dealFromDeck(){
+  const deck = $("#deck"), btn = $("#drawBtn");
+  const sc = deck.closest(".scroll"), prevPos = sc.style.position;
+  sc.style.position = "relative";
+  const scR = sc.getBoundingClientRect(), r = deck.getBoundingClientRect();
+  const ghost = deck.cloneNode(true);                       // 用複製品留在原位，讓版面可以先換成最後的樣子
+  ghost.removeAttribute("id"); ghost.classList.add("deck-ghost");
+  ghost.style.cssText = `left:${r.left - scR.left + sc.scrollLeft}px;top:${r.top - scR.top + sc.scrollTop}px;width:${r.width}px;height:${r.height}px`;
+  sc.appendChild(ghost);
+  $("#drawPanel").hidden = true;
+  btn.getAnimations().forEach(a => a.cancel());
+  const tk = $("#tickets"); tk.innerHTML = ticketsHTML(false);
+  const tix = [...tk.children]; tix.forEach(t => t.style.visibility = "hidden");
+  const gR = ghost.getBoundingClientRect();
+  const kids = [...deck.children];
+  const ordered = deckOrder.map(el => { const g = ghost.children[kids.indexOf(el)]; g._j = el._j; return g; });   // 由下到上
+  const n = Math.min(tix.length, ordered.length), topIdx = ordered.length - 1;
+  const fly = ordered.slice(-n).reverse();                   // 最上面那張先飛
+  const rest = ordered.slice(0, ordered.length - n);
+  rest.forEach(g => g.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 350, delay: 450, fill: "forwards" }));
+  const jobs = fly.map(async (g, i) => {
+    const k = topIdx - i, tr = tix[i].getBoundingClientRect(), h = g.offsetHeight;
+    const dx = (tr.left + tr.width / 2) - (gR.left + gR.width / 2);
+    const dy = (tr.top + tr.height / 2) - (gR.top + CARD_TOP + h / 2);
+    const s = Math.min(.9, tr.height / h);
+    g.style.zIndex = 200 + i;
+    const land = FL(dx, dy, 0, s, 0);
+    await mv(g, [stackTf(g, k), FL(g._j.x + dx * .2, -k * 1.3 - 80, (i - 1) * 7, 1.06, 0), land], { duration: 600, delay: i * 250, easing: "cubic-bezier(.4,0,.2,1)" });
+    await mv(g, [land, FL(dx, dy, 0, s, 90)], { duration: 150, easing: "ease-in" });   // 牌背翻到側面
+    g.style.visibility = "hidden";
+    tix[i].style.visibility = "visible";
+    await tix[i].animate([{ transform: "perspective(700px) rotateY(-90deg) scale(.8)" }, { transform: "perspective(700px) rotateY(0deg) scale(1)" }], { duration: 280, easing: "cubic-bezier(.2,.8,.2,1)" }).finished;   // 票卡從側面翻開
+  });
+  await Promise.all(jobs);
+  ghost.remove(); sc.style.position = prevPos;
+  tix.forEach(t => t.style.visibility = "");
+}
 async function drawToday(){
-  const btn = $("#drawBtn"), deck = $("#deck");
+  const btn = $("#drawBtn");
   btn.disabled = true; btn.textContent = "抽選中…";
   const reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
-  deck.classList.add("shuffle"); if (!reduce) await sleep(2000);   // 洗牌動畫 2 秒
-  deck.classList.add("out"); if (!reduce) await sleep(350);
+  if (reduce){
+    S.drawnDate = todayStr(); save();
+    $("#drawPanel").hidden = true; $("#tickets").innerHTML = ticketsHTML(false);
+    return;
+  }
+  await shuffleDeck();
+  await btn.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 160, fill: "forwards" }).finished;
   S.drawnDate = todayStr(); save();
-  $("#drawPanel").hidden = true;
-  $("#tickets").innerHTML = ticketsHTML(true);
+  await dealFromDeck();
 }
 function renderHome(){
   const lv = S.level;
@@ -614,7 +702,9 @@ function renderHome(){
     `<div class="setup"><p><b>先完成一個設定</b>：設定API Key。</p><button class="btn" id="setupGo">去設定</button></div>`;
   const drawn = isDrawnToday();
   $("#drawPanel").hidden = drawn;
-  $("#deck").className = "deck";
+  document.querySelectorAll(".deck-ghost").forEach(e => e.remove());
+  $("#drawBtn").getAnimations().forEach(a => a.cancel());
+  if (!drawn) buildDeck();
   $("#drawBtn").disabled = false; $("#drawBtn").textContent = "抽選今日的票卡";
   $("#tickets").innerHTML = drawn ? ticketsHTML(false) : "";
   show("home");
