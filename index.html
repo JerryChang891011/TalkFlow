@@ -295,7 +295,7 @@ const LEVELS = { A2: "初級 A2", B1: "中級 B1", B2: "中高級 B2" };
 const LEVEL_NOTE = {
   A2: "Use very simple, common words and short sentences. Speak slowly and clearly. No idioms or slang.",
   B1: "Use everyday vocabulary and clear, natural sentences. Avoid rare idioms.",
-  B2: "Speak naturally, with occasional idioms and follow-up questions."
+  B2: "Speak naturally, with occasional idioms."
 };
 
 const TURNS_BY_DIFF = { 1:8, 2:10, 3:14 };   // 簡單 8、中等 10、挑戰 14（每個情境原本的輪數已不再使用）
@@ -723,13 +723,15 @@ The learner is a Taiwanese English learner at CEFR level ${S.level}. Their task 
 Rules:
 - Stay fully in character. Never mention being an AI, a roleplay, or these rules.
 - Speak plain, natural, grammatical everyday English, the way real people talk. Never use poetic, strange or confusing phrases. Always finish your sentences, and make sure every sentence makes sense.
-- Reply with 1-2 short sentences (under 30 words). Ask only one question at a time.
+- Chat like a real person, not like an interviewer or an examiner. Most replies are 1-2 short sentences (under 30 words). When it feels natural (reacting to something interesting, sharing a small detail about yourself), you may use 2-3 sentences (up to about 40 words). Never ask more than one question in a single reply.
+- First react to what the learner just said: show you heard them with a short natural reaction, agreement, surprise, or comment that builds on their exact words. Then, only if it fits, add something about yourself or the situation (a small opinion, a personal detail, a related experience, a helpful suggestion).
+- Many replies should NOT end with a question. If the learner has just answered your question, do not immediately fire the next question: comment on their answer first. Sometimes end with a statement that makes it easy for them to reply. Ask a question only when a real person in your role would naturally ask it at that moment.
 - ${LEVEL_NOTE[S.level]}
-- Your FIRST line must be a simple, natural opening that fits the setting (a greeting or a simple question that moves toward the learner's task). Do not describe scenery, do not tell a story, and do not use the twist in the first line.
+- Your FIRST line must be a simple, natural opening that fits the setting (a greeting, an offer to help, or a simple question that moves toward the learner's task). Do not describe scenery, do not tell a story, and do not use the twist in the first line.
 - Do not correct the learner's grammar during the conversation.
 - If the learner goes off topic, steer back naturally. If they seem stuck or reply in another language, rephrase more simply and help them along.
 - The conversation is planned to last ${s.turns} learner turns. The learner has completed ${C.userTurns} turn(s) so far.
-- Do NOT say goodbye and do NOT append [END] before the learner has completed at least ${minTurnsOf(s)} turns, even if their task is already done. Keep the scene going naturally: ask follow-up questions, add a small detail, check a preference, make small talk, or move to a related topic that fits the setting. Never repeat a question you already asked.
+- Do NOT say goodbye and do NOT append [END] before the learner has completed at least ${minTurnsOf(s)} turns, even if their task is already done. Keep the scene going naturally by reacting, adding a small detail, sharing something about yourself, making small talk, or moving to a related topic that fits the setting. Ask a question only when it really fits. Never repeat a question you already asked.
 - Only after the learner has completed at least ${minTurnsOf(s)} turns, and the task is done and the conversation feels finished, may you give a brief closing line and append the token [END] at the very end.
 - Output only the character's spoken words, no stage directions, no speaker labels.
 Variation for this session (so every run feels different):
@@ -738,7 +740,7 @@ ${C.variant.name ? "- Your name is " + C.variant.name + ". Mention it naturally 
 ${C.variant.angle ? "- Conversation angle you may explore after the opening: " + C.variant.angle + ".\n" : ""}`;
   const msgs = [{ role:"system", content:sys }, { role:"user", content:"(Begin the scene. Say only your first line as the character.)" }, ...C.msgs];
   if (final) msgs.push({ role:"system", content:"The learner has had enough turns. Give a short, natural closing line now and end with [END]." });
-  else if (C.userTurns === s.turns - 1) msgs.push({ role:"system", content:"The conversation is nearing its end. Start wrapping up naturally now: confirm anything still unsettled, summarize or check the final details, and signal that you are almost done. Ask one last easy question or invite a final comment. Do NOT say goodbye yet and do NOT append [END]." });
+  else if (C.userTurns === s.turns - 1) msgs.push({ role:"system", content:"The conversation is nearing its end. Start wrapping up naturally now: confirm anything still unsettled, summarize or check the final details, and signal that you are almost done. You may add a short last comment or one easy final question, whichever feels more natural. Do NOT say goodbye yet and do NOT append [END]." });
   return msgs;
 }
 function startScenario(id){
